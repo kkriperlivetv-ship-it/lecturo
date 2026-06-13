@@ -272,6 +272,8 @@ wss.on('connection', (socket, req) => {
         .catch(error => console.error('Failed to send initial help count:', error));
 });
 
+app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));
+
 // Обработка 404
 app.use((req, res) => {
     res.status(404).render('404', { title: 'Страница не найдена' });

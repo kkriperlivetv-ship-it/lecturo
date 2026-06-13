@@ -7,7 +7,14 @@ const DEFAULT_SUBSCRIPTION_FEATURES = {
     pdfTemplates: false
 };
 
-async function syncSessionUser(sessionUser) {
+const SYNC_INTERVAL_MS = 2 * 60 * 1000; // re-sync at most once every 2 minutes
+
+async function syncSessionUser(sessionUser, { force = false } = {}) {
+    const now = Date.now();
+    if (!force && sessionUser._syncedAt && (now - sessionUser._syncedAt) < SYNC_INTERVAL_MS) {
+        return sessionUser;
+    }
+
     const user = await User.findByPk(sessionUser.id);
     if (!user) {
         return null;
@@ -34,7 +41,6 @@ async function syncSessionUser(sessionUser) {
         ? (parsedFeatures || ALL_FEATURES)
         : DEFAULT_SUBSCRIPTION_FEATURES;
 
-    // Parse subscriptionFeatures from string if stored as JSON string in DB
     let storedFeatures = user.subscriptionFeatures;
     if (typeof storedFeatures === 'string') {
         try {
@@ -64,7 +70,8 @@ async function syncSessionUser(sessionUser) {
         twoFactorEnabled: user.twoFactorEnabled,
         hasActiveSubscription,
         subscriptionExpiresAt,
-        subscriptionFeatures
+        subscriptionFeatures,
+        _syncedAt: now
     };
 }
 
@@ -107,34 +114,24 @@ function requireAdmin(req, res, next) {
     next();
 }
 
-// Middleware для логирования действий пользователей
-async function logAction(req, res, next) {
-    const { Log } = require('../models');
-    
-    // Пропускаем логирование для админских маршрутов, чтобы избежать рекурсии
-    if (req.path.startsWith('/admin')) {
-        return next();
-    }
-    
-    if (req.session.user) {
-        try {
-            await Log.create({
-                userId: req.session.user.id,
-                action: `${req.method} ${req.path}`,
-                details: JSON.stringify({
-                    params: req.params,
-                    query: req.query,
-                    body: req.body
-                }),
-                ipAddress: req.ip,
-                userAgent: req.get('User-Agent')
-            });
-        } catch (error) {
-            console.error('Ошибка при логировании:', error);
-        }
-    }
-    
+const LOG_SKIP_PREFIXES = ['/admin', '/api/help/unread-count', '/api/video-search'];
+const LOG_METHODS = new Set(['POST', 'PUT', 'DELETE', 'PATCH']);
+
+function logAction(req, res, next) {
     next();
+
+    if (!req.session.user) return;
+    if (!LOG_METHODS.has(req.method)) return;
+    if (LOG_SKIP_PREFIXES.some(p => req.path.startsWith(p))) return;
+
+    const { Log } = require('../models');
+    Log.create({
+        userId: req.session.user.id,
+        action: `${req.method} ${req.path}`,
+        details: JSON.stringify({ params: req.params, query: req.query }),
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent')
+    }).catch(err => console.error('Ошибка при логировании:', err.message));
 }
 
 // Псевдоним для обратной совместимости
