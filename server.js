@@ -279,15 +279,17 @@ app.use((req, res) => {
     res.status(404).render('404', { title: 'Страница не найдена' });
 });
 
-// Синхронизация базы данных и запуск сервера
+// Запускаем сервер сразу — чтобы Render принял порт и статика отдавалась мгновенно
+server.listen(PORT, () => {
+    console.log(`Сервер запущен на http://localhost:${PORT}`);
+});
+
+// Синхронизация базы данных в фоне (не блокирует порт)
 sequelize.sync({ force: false }).then(async () => {
     await ensureCoursesModerationColumns();
     await ensureWebinarsLessonIdColumn();
     await ensureUserTwoFactorColumns();
     console.log('База данных синхронизирована');
-    server.listen(PORT, () => {
-        console.log(`Сервер запущен на http://localhost:${PORT}`);
-    });
 }).catch(err => {
     console.error('Ошибка синхронизации БД:', err);
 });
