@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
 const path = require('path');
 const expressLayouts = require('express-ejs-layouts');
 const flash = require('connect-flash');
@@ -193,13 +194,22 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Сессии
-app.use(session({
-    secret: 'online-courses-secret-key',
+// Сессии — PostgreSQL на проде, in-memory локально
+const sessionConfig = {
+    secret: process.env.SESSION_SECRET || 'online-courses-secret-key',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 1 день
-}));
+    cookie: { secure: false, maxAge: 7 * 24 * 60 * 60 * 1000 } // 7 дней
+};
+if (process.env.DATABASE_URL) {
+    sessionConfig.store = new pgSession({
+        conString: process.env.DATABASE_URL,
+        tableName: 'session',
+        createTableIfMissing: true,
+        ssl: { rejectUnauthorized: false }
+    });
+}
+app.use(session(sessionConfig));
 
 // Flash сообщения
 app.use(flash());
@@ -279,16 +289,50 @@ app.use((req, res) => {
     res.status(404).render('404', { title: 'Страница не найдена' });
 });
 
+// Глобальный error handler
+app.use((err, req, res, next) => {
+    console.error('Unhandled error:', err.message);
+    if (req.xhr || req.headers.accept?.includes('application/json')) {
+        return res.status(500).json({ ok: false, error: 'Ошибка сервера' });
+    }
+    res.status(500).send('Ошибка сервера');
+});
+
 // Запускаем сервер сразу — чтобы Render принял порт и статика отдавалась мгновенно
 server.listen(PORT, () => {
     console.log(`Сервер запущен на http://localhost:${PORT}`);
 });
+
+async function ensureOwnerAccount() {
+    try {
+        const { User } = require('./models');
+        const ownerEmail = process.env.OWNER_EMAIL || 'marathon868@gmail.com';
+        const ownerPassword = process.env.OWNER_PASSWORD || 'Kedamo1551';
+        const existing = await User.findOne({ where: { email: ownerEmail } });
+        if (!existing) {
+            await User.create({
+                username: 'owner',
+                email: ownerEmail,
+                password: ownerPassword,
+                role: 'owner',
+                isProtected: true
+            });
+            console.log('Аккаунт владельца создан:', ownerEmail);
+        } else if (existing.role !== 'owner') {
+            await existing.update({ role: 'owner', isProtected: true });
+            console.log('Аккаунт владельца обновлён:', ownerEmail);
+        }
+    } catch (err) {
+        console.error('Ошибка создания владельца:', err.message);
+    }
+}
 
 // Синхронизация базы данных в фоне (не блокирует порт)
 sequelize.sync({ force: false }).then(async () => {
     await ensureCoursesModerationColumns();
     await ensureWebinarsLessonIdColumn();
     await ensureUserTwoFactorColumns();
+    await ensureOwnerAccount();
     console.log('База данных синхронизирована');
 }).catch(err => {
     console.error('Ошибка синхронизации БД:', err);
