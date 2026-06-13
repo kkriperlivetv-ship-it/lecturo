@@ -1,0 +1,32 @@
+node_modules/
+.env
+*.db
+*.sqlite
+*.sqlite3
+public/uploads/videos/
+public/uploads/pdfs/
+.DS_Store
+Thumbs.db
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Логи
+server.log
+*.log
+
+# Скриншоты и temp файлы
+screenshots/
+*.html
+*.txt
+served_content.*
+temp*
+test*
+profile_output*
+response*
+served*
+
+# Бэкапы
+*.backup
+views/partials/header_fixed.ejs
+views/partials/header_new.ejs

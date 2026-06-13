@@ -1,0 +1,62 @@
+<div class="auth-container">
+    <div class="auth-card">
+        <h2 class="auth-title">Подтверждение email</h2>
+        <% if (error) { %>
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i> <%= error %>
+            </div>
+        <% } %>
+        <% if (success) { %>
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i> <%= success %>
+            </div>
+        <% } %>
+        <p>На email <strong><%= email %></strong> был отправлен код подтверждения. Введите его ниже.</p>
+        <p>Код действителен 15 минут.</p>
+        <form method="POST" action="/auth/verify-email" class="auth-form" id="verifyForm">
+            <input type="hidden" name="email" value="<%= email %>">
+            <div class="form-group">
+                <label for="code">Код подтверждения</label>
+                <input type="text" id="code" name="code" required placeholder="Введите 6-значный код" maxlength="6" autocomplete="off">
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Подтвердить</button>
+        </form>
+        <p class="auth-link">
+            Не получили код? <a href="#" id="resendLink">Отправить повторно</a>
+        </p>
+        <script>
+            document.getElementById('verifyForm').addEventListener('submit', function(event) {
+                const code = document.getElementById('code').value.trim();
+                if (!/^\d{6}$/.test(code)) {
+                    event.preventDefault();
+                    alert('Введите корректный 6-значный код');
+                    return false;
+                }
+                return true;
+            });
+
+            document.getElementById('resendLink').addEventListener('click', function(e) {
+                e.preventDefault();
+                const email = '<%= email %>';
+                fetch('/auth/resend-verification', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok) {
+                        alert('Новый код отправлен на ваш email');
+                    } else {
+                        alert('Ошибка: ' + (data.error || 'Не удалось отправить код'));
+                    }
+                })
+                .catch(err => {
+                    alert('Ошибка сети');
+                });
+            });
+        </script>
+    </div>
+</div>

@@ -1,0 +1,454 @@
+<div class="container">
+    <style>
+        #topic::placeholder,
+        #description::placeholder,
+        #chatInput::placeholder {
+            color: #808080;
+            opacity: 1;
+        }
+    </style>
+
+    <div class="help-page text-white">
+        <% const supportView = !!isSupportUser; %>
+        <% const selectedTicket = activeTicket || null; %>
+
+        <% if (messages && messages.success) { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <%= messages.success %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <% } %>
+
+        <% if (messages && messages.error) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <%= messages.error %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <% } %>
+
+        <% if (supportView) { %>
+            <h1>Оставленные заявки</h1>
+            <p class="help-subtitle">Принимайте обращения, ведите переписку и закрывайте тикеты после решения вопроса.</p>
+        <% } else { %>
+            <h1>Помощь</h1>
+            <p class="help-subtitle">Создайте обращение и продолжайте общение с поддержкой прямо в чате после принятия заявки.</p>
+        <% } %>
+
+        <div class="row g-4 align-items-start">
+            <div class="col-lg-4">
+                 <% if (!supportView) { %>
+                     <form method="POST" action="/help" class="card border-0 shadow-sm mb-4 help-form" id="helpForm" style="background-color: #151516;">
+                         <div class="card-body">
+                             <h2 class="h5 mb-3 text-white">Новое обращение</h2>
+                             <div class="mb-3">
+                                 <label for="topic" class="form-label text-white">Тема</label>
+                                 <input type="text" id="topic" name="topic" class="form-control text-white border-secondary" style="background-color: #1f2023;" required placeholder="Кратко опишите суть вопроса">
+                             </div>
+                             <div class="mb-3">
+                                 <label for="description" class="form-label text-white">Описание</label>
+                                 <textarea id="description" name="description" rows="5" class="form-control text-white border-secondary" style="background-color: #1f2023;" required placeholder="Опишите проблему или вопрос подробнее"></textarea>
+                             </div>
+                             <button type="submit" class="btn btn-primary w-100">Отправить обращение</button>
+                         </div>
+                     </form>
+                 <% } %>
+
+                 <div class="card border-0 shadow-sm" style="background-color: #151516;">
+                     <div class="card-body">
+                         <div class="d-flex justify-content-between align-items-center mb-3">
+                             <h2 class="h5 mb-0 text-white"><%= supportView ? 'Оставленные заявки' : 'Ваши обращения' %></h2>
+                             <span class="badge bg-secondary" id="ticketsCountBadge"><%= userTickets ? userTickets.length : 0 %></span>
+                         </div>
+
+                          <% if (userTickets && userTickets.length > 0) { %>
+                             <div class="tickets-list d-grid gap-3" id="ticketsList">
+                                 <% userTickets.forEach(function(ticket) { %>
+                                     <div class="ticket-item-wrap" style="position:relative;">
+                                         <a
+                                             href="/help?ticketId=<%= ticket.id %>"
+                                             class="ticket-card border rounded p-3 text-decoration-none text-reset d-block <%= selectedTicket && selectedTicket.id === ticket.id ? 'border-primary' : '' %>"
+                                             data-ticket-id="<%= ticket.id %>">
+                                             <div class="d-flex justify-content-between gap-3">
+                                                 <div style="min-width:0;">
+                                                     <h3 class="h6 mb-1 text-white"><%= ticket.subject %></h3>
+                                                     <p class="small mb-2 text-white"><%= ticket.description.substring(0, 90) %><% if (ticket.description.length > 90) { %>...<% } %></p>
+                                                     <div class="d-flex flex-wrap gap-2 align-items-center small">
+                                                         <% if (supportView) { %>
+                                                             <span class="badge bg-secondary">От: <%= ticket.userName %></span>
+                                                         <% } %>
+                                                         <span class="badge bg-light text-dark"><%= new Date(ticket.createdAt).toLocaleString() %></span>
+                                                         <% if (ticket.status === 'waiting') { %>
+                                                             <span class="badge bg-danger">Ожидает</span>
+                                                         <% } else if (ticket.status === 'in_progress') { %>
+                                                             <span class="badge bg-warning text-dark">В работе</span>
+                                                         <% } else { %>
+                                                             <span class="badge bg-success">Закрыто</span>
+                                                         <% } %>
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         </a>
+                                         <% if (user && user.role === 'owner') { %>
+                                             <form method="POST" action="/help/<%= ticket.id %>/delete"
+                                                   style="position:absolute;top:8px;right:8px;margin:0;"
+                                                   onsubmit="return confirm('Удалить заявку «<%= ticket.subject %>»? Это действие нельзя отменить.')">
+                                                 <button type="submit" class="btn btn-sm"
+                                                         style="background:rgba(220,53,69,0.15);border:1px solid rgba(220,53,69,0.3);color:#ff6b6b;padding:3px 8px;line-height:1.4;"
+                                                         title="Удалить заявку">
+                                                     <i class="fas fa-trash-alt"></i>
+                                                 </button>
+                                             </form>
+                                         <% } %>
+                                     </div>
+                                 <% }); %>
+                             </div>
+                          <% } else { %>
+                                <div class="alert mb-0 text-white border-secondary" style="background-color: #1f2023;">
+                                    <%= supportView ? 'Заявок пока нет.' : 'У вас пока нет обращений.' %>
+                                </div>
+                          <% } %>
+                     </div>
+                 </div>
+             </div>
+
+            <div class="col-lg-8">
+                <% if (selectedTicket) { %>
+                    <div class="card border-0 shadow-sm" id="ticketChatCard" data-ticket-id="<%= selectedTicket.id %>" data-ticket-status="<%= selectedTicket.status %>" style="background-color: #151516; color: #ffffff;">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start gap-3 mb-3 flex-wrap">
+                                <div>
+                                    <h2 class="h4 mb-1 text-white"><%= selectedTicket.subject %></h2>
+                                    <p class="text-white mb-2"><%= selectedTicket.description %></p>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <% if (supportView) { %>
+                                            <span class="badge bg-secondary">Пользователь: <%= selectedTicket.userName %></span>
+                                        <% } %>
+                                        <span class="badge bg-secondary text-white">Создано: <%= new Date(selectedTicket.createdAt).toLocaleString() %></span>
+                                        <% if (selectedTicket.status === 'waiting') { %>
+                                            <span class="badge bg-danger" id="ticketStatusBadge">Ожидает</span>
+                                        <% } else if (selectedTicket.status === 'in_progress') { %>
+                                            <span class="badge bg-warning text-white" id="ticketStatusBadge">В работе</span>
+                                        <% } else { %>
+                                            <span class="badge bg-success" id="ticketStatusBadge">Закрыто</span>
+                                        <% } %>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <% if (supportView && selectedTicket.status === 'waiting') { %>
+                                        <button class="btn btn-primary accept-ticket" data-ticket-id="<%= selectedTicket.id %>">Принять</button>
+                                    <% } %>
+                                    <% if (supportView && selectedTicket.status === 'in_progress') { %>
+                                        <button class="btn btn-outline-danger close-ticket" data-ticket-id="<%= selectedTicket.id %>">Закрыть обращение</button>
+                                    <% } %>
+                                </div>
+                            </div>
+
+<div id="chatMessages" class="border rounded p-3 mb-3" style="min-height: 360px; max-height: 520px; overflow-y: auto; background-color: #151516; color: #ffffff; border-color: #2f3136;">
+                                 <% if (ticketMessages && ticketMessages.length > 0) { %>
+                                     <% ticketMessages.forEach(function(message) { %>
+                                         <div class="mb-3 d-flex <%= String(message.authorId) === String(currentUserId) ? 'justify-content-end' : 'justify-content-start' %>">
+                                             <div class="d-inline-block px-3 py-2 rounded" style="max-width: 85%; background-color: <%= String(message.authorId) === String(currentUserId) ? '#4CAF50' : '#1f2023' %>; color: #ffffff;">
+                                                 <div class="small fw-semibold mb-1"><%= message.authorName %></div>
+                                                 <div><%= message.text %></div>
+                                                 <div class="small mt-1 text-white-50">
+                                                     <%= new Date(message.createdAt).toLocaleString() %>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                     <% }); %>
+                                 <% } else { %>
+                                     <p class="text-white mb-0" id="emptyChatMessage">Сообщений пока нет.</p>
+                                 <% } %>
+                             </div>
+
+                            <% if (selectedTicket.status === 'in_progress') { %>
+                                <form id="chatForm" class="d-flex gap-2 align-items-start">
+                                    <textarea id="chatInput" class="form-control text-white border-secondary" rows="3" style="background-color: #1f2023;" placeholder="Введите сообщение"></textarea>
+                                    <button type="submit" class="btn btn-primary">Отправить</button>
+                                </form>
+                            <% } else if (selectedTicket.status === 'waiting') { %>
+                                <div class="alert mb-0 text-white border-secondary" style="background-color: #1f2023;" id="chatLockedMessage">Чат станет доступен после принятия обращения поддержкой.</div>
+                            <% } else { %>
+                                <div class="alert mb-0 text-white border-secondary" style="background-color: #1f2023;" id="chatLockedMessage">Обращение закрыто. Отправка сообщений недоступна.</div>
+                            <% } %>
+                        </div>
+                    </div>
+                 <% } else { %>
+                     <div class="card border-0 shadow-sm" style="background-color: #151516;">
+                         <div class="card-body">
+                             <p class="text-white mb-0"><%= supportView ? 'Выберите заявку из списка слева.' : 'Выберите обращение слева или создайте новое.' %></p>
+                         </div>
+                     </div>
+                 <% } %>
+             </div>
+             </div>
+         </div>
+     </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const currentUserId = <%- JSON.stringify(typeof currentUserId !== 'undefined' ? currentUserId : null) %>;
+    const isSupportUser = <%- JSON.stringify(!!isSupportUser) %>;
+    const currentUserRole = <%- JSON.stringify(user ? user.role : 'guest') %>;
+    const selectedTicketId = <%- JSON.stringify(activeTicket ? activeTicket.id : null) %>;
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(`${protocol}//${window.location.host}?userId=${encodeURIComponent(currentUserId || '')}&role=${encodeURIComponent(currentUserRole)}`);
+    const chatCard = document.getElementById('ticketChatCard');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatForm = document.getElementById('chatForm');
+    const chatInput = document.getElementById('chatInput');
+    const helpNotification = document.getElementById('helpNotification');
+
+    updateHelpBadge();
+    scrollChatToBottom();
+
+    ws.addEventListener('open', function() {
+        if (selectedTicketId) {
+            ws.send(JSON.stringify({ type: 'JOIN_TICKET', ticketId: selectedTicketId }));
+        }
+    });
+
+    ws.addEventListener('message', function(event) {
+        const data = JSON.parse(event.data);
+
+        if (data.type === 'HELP_BADGE_UPDATE') {
+            updateHelpBadge(data.count);
+            return;
+        }
+
+        if (data.type === 'TICKET_CREATED') {
+            updateHelpBadge();
+            if (isSupportUser) {
+                showNotification('Новое обращение получено', 'info');
+                window.location.reload();
+            }
+            return;
+        }
+
+        if (data.type === 'TICKET_ACCEPTED') {
+            updateHelpBadge();
+            if (!isSupportUser && data.ticket.userId === currentUserId) {
+                showNotification('Ваше обращение принято в работу', 'success');
+                window.location.reload();
+            }
+            if (isSupportUser) {
+                showNotification('Обращение принято в работу', 'info');
+                window.location.reload();
+            }
+            return;
+        }
+
+        if (data.type === 'TICKET_CLOSED') {
+            updateHelpBadge();
+            if (!isSupportUser && data.ticket.userId === currentUserId) {
+                showNotification('Ваше обращение закрыто', 'success');
+                window.location.reload();
+            }
+            if (isSupportUser) {
+                showNotification('Обращение закрыто', 'info');
+                window.location.reload();
+            }
+            return;
+        }
+
+        if (data.type === 'TICKET_MESSAGE_CREATED' && chatCard && data.message.ticketId === chatCard.dataset.ticketId) {
+            appendMessage(data.message);
+            updateHelpBadge();
+        }
+    });
+
+    ws.addEventListener('close', function() {
+        setTimeout(function() {
+            window.location.reload();
+        }, 3000);
+    });
+
+    window.addEventListener('beforeunload', function() {
+        if (selectedTicketId && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: 'LEAVE_TICKET', ticketId: selectedTicketId }));
+        }
+    });
+
+    ws.addEventListener('error', function(error) {
+        console.error('WebSocket error:', error);
+    });
+
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('accept-ticket')) {
+            acceptTicket(e.target.getAttribute('data-ticket-id'));
+        }
+
+        if (e.target.classList.contains('close-ticket')) {
+            closeTicket(e.target.getAttribute('data-ticket-id'));
+        }
+    });
+
+    if (chatForm) {
+        chatForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            sendMessage();
+        });
+    }
+
+    function acceptTicket(ticketId) {
+        fetch(`/help/${ticketId}/accept`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                throw new Error(data.error || 'Ошибка при принятии обращения');
+            }
+            showNotification('Обращение принято в работу', 'success');
+        })
+        .catch(error => {
+            showNotification(error.message || 'Ошибка при принятии обращения', 'danger');
+        });
+    }
+
+    function closeTicket(ticketId) {
+        if (!confirm('Вы уверены, что хотите закрыть это обращение?')) {
+            return;
+        }
+
+        fetch(`/help/${ticketId}/close`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                throw new Error(data.error || 'Ошибка при закрытии обращения');
+            }
+            showNotification('Обращение закрыто', 'success');
+        })
+        .catch(error => {
+            showNotification(error.message || 'Ошибка при закрытии обращения', 'danger');
+        });
+    }
+
+    function sendMessage() {
+        if (!chatCard || !chatInput) {
+            return;
+        }
+
+        const text = chatInput.value.trim();
+        if (!text) {
+            return;
+        }
+
+        fetch(`/api/help/tickets/${chatCard.dataset.ticketId}/messages`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                throw new Error(data.error || 'Ошибка при отправке сообщения');
+            }
+            chatInput.value = '';
+        })
+        .catch(error => {
+            showNotification(error.message || 'Ошибка при отправке сообщения', 'danger');
+        });
+    }
+
+function appendMessage(message) {
+         if (!chatMessages) {
+             return;
+         }
+ 
+         const empty = document.getElementById('emptyChatMessage');
+         if (empty) {
+             empty.remove();
+         }
+ 
+         const wrapper = document.createElement('div');
+         const ownMessage = String(message.authorId) === String(currentUserId);
+         wrapper.className = `mb-3 d-flex ${ownMessage ? 'justify-content-end' : 'justify-content-start'}`;
+         wrapper.innerHTML = `
+             <div class="d-inline-block px-3 py-2 rounded ${ownMessage ? 'bg-primary text-white' : 'bg-dark text-white'}" style="max-width: 85%;">
+                 <div class="small fw-semibold mb-1">${escapeHtml(message.authorName)}</div>
+                 <div>${escapeHtml(message.text)}</div>
+                 <div class="small mt-1 text-white-50">${new Date(message.createdAt).toLocaleString()}</div>
+             </div>
+         `;
+         chatMessages.appendChild(wrapper);
+         scrollChatToBottom();
+     }
+
+    function scrollChatToBottom() {
+        if (chatMessages) {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    }
+
+     function updateHelpBadge(forcedCount) {
+         if (typeof forcedCount === 'number') {
+             renderHelpBadge(forcedCount);
+             return;
+         }
+
+         const excludeTicketId = selectedTicketId ? selectedTicketId : '';
+         const url = excludeTicketId ? `/api/help/unread-count?excludeTicketId=${encodeURIComponent(excludeTicketId)}` : '/api/help/unread-count';
+         
+         fetch(url)
+             .then(response => response.json())
+             .then(data => renderHelpBadge(Number(data.count) || 0))
+             .catch(() => renderHelpBadge(0));
+     }
+
+    function renderHelpBadge(count) {
+        if (!helpNotification) {
+            return;
+        }
+
+        if (count > 0) {
+            helpNotification.textContent = count;
+            helpNotification.style.display = 'inline-flex';
+        } else {
+            helpNotification.textContent = '0';
+            helpNotification.style.display = 'none';
+        }
+    }
+
+    function showNotification(message, type) {
+        const existingNotification = document.querySelector('.notification-toast');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
+        const notification = document.createElement('div');
+        notification.className = `notification-toast toast align-items-center text-bg-${type} border-0 position-fixed bottom-0 end-0 m-3`;
+        notification.setAttribute('role', 'alert');
+        notification.setAttribute('aria-live', 'assertive');
+        notification.setAttribute('aria-atomic', 'true');
+        notification.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">${escapeHtml(message)}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+        const toastBootstrap = bootstrap.Toast.getOrCreateInstance(notification);
+        toastBootstrap.show();
+        notification.addEventListener('hidden.bs.toast', function() {
+            notification.remove();
+        });
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+});
+</script>

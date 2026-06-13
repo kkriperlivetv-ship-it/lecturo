@@ -1,0 +1,87 @@
+<div class="not-found">
+    <div class="not-found-content">
+        <h1>404</h1>
+        <h2>Страница не найдена</h2>
+        <p>Запрашиваемая страница не существует или была перемещена.</p>
+        <div class="not-found-actions">
+            <a href="/" class="btn btn-primary">
+                <i class="fas fa-home"></i> На главную
+            </a>
+            <a href="/courses" class="btn btn-outline">
+                <i class="fas fa-book"></i> Каталог курсов
+            </a>
+            <a href="javascript:history.back()" class="btn btn-outline">
+                <i class="fas fa-arrow-left"></i> Назад
+            </a>
+        </div>
+        <div class="not-found-search">
+            <p>Или найдите нужный курс:</p>
+            <div class="search-box">
+                <input type="text" placeholder="Введите название курса...">
+                <button class="btn btn-small"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.not-found {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 70vh;
+    text-align: center;
+    padding: 2rem;
+}
+.not-found-content h1 {
+    font-size: 6rem;
+    color: var(--accent);
+    margin-bottom: 0;
+    line-height: 1;
+}
+.not-found-content h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+.not-found-content p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    max-width: 500px;
+    margin: 0 auto 2rem;
+}
+.not-found-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+.not-found-search {
+    max-width: 400px;
+    margin: 0 auto;
+}
+.not-found-search .search-box {
+    display: flex;
+    margin-top: 1rem;
+}
+.not-found-search input {
+    flex-grow: 1;
+    padding: 0.8rem;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius) 0 0 var(--radius);
+    color: var(--text-primary);
+}
+.not-found-search button {
+    border-radius: 0 var(--radius) var(--radius) 0;
+}
+@media (max-width: 768px) {
+    .not-found-content h1 {
+        font-size: 4rem;
+    }
+    .not-found-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+</style>

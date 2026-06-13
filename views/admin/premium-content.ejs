@@ -1,0 +1,275 @@
+<style>
+    .pc-section { margin-bottom: 3rem; }
+    .pc-section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .pc-add-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .pc-add-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--text-secondary);
+    }
+    .pc-form-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .pc-form-row .form-group { flex: 1; min-width: 180px; }
+    .form-group { margin-bottom: 0.75rem; }
+    .form-group label { font-size: 0.82rem; color: var(--text-secondary); display: block; margin-bottom: 0.3rem; }
+    .form-control-dark {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+    }
+    .form-control-dark:focus { outline: none; border-color: var(--accent); }
+    .form-control-dark::placeholder { color: var(--text-secondary); }
+
+    .pc-table-wrap {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .pc-table { width: 100%; border-collapse: collapse; }
+    .pc-table th {
+        background: var(--bg-primary);
+        padding: 0.65rem 1rem;
+        text-align: left;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .pc-table td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 0.88rem;
+        vertical-align: middle;
+    }
+    .pc-table tr:last-child td { border-bottom: none; }
+    .pc-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .pc-empty-row td { text-align: center; color: var(--text-secondary); padding: 2rem; }
+
+    .tag-small {
+        display: inline-block;
+        font-size: 0.72rem;
+        padding: 2px 7px;
+        border-radius: 4px;
+        font-weight: 600;
+        background: rgba(99,102,241,0.15);
+        color: var(--accent);
+    }
+</style>
+
+<div>
+    <h1 style="margin-bottom:.4rem;"><i class="fas fa-crown me-2" style="color:#a855f7;"></i>Управление Premium-контентом</h1>
+    <p style="color:var(--text-secondary); margin-bottom:2rem;">Добавляйте вебинары и PDF-материалы для подписчиков</p>
+
+    <% if (messages && messages.success) { %><div class="alert alert-success"><%= messages.success %></div><% } %>
+    <% if (messages && messages.error) { %><div class="alert alert-danger"><%= messages.error %></div><% } %>
+
+    <%# ===== WEBINARS ===== %>
+    <div class="pc-section">
+        <div class="pc-section-title"><i class="fas fa-video" style="color:var(--accent);"></i>Вебинары (<%= webinars.length %>)</div>
+
+        <div class="pc-add-card">
+            <div class="pc-add-title"><i class="fas fa-plus me-1"></i>Добавить вебинар</div>
+            <form method="POST" action="/admin/premium/webinars">
+                <div class="pc-form-row">
+                    <div class="form-group" style="flex:2; min-width:220px;">
+                        <label>Название *</label>
+                        <input type="text" name="title" class="form-control-dark" required placeholder="Название вебинара">
+                    </div>
+                    <div class="form-group">
+                        <label>Дата *</label>
+                        <input type="date" name="date" class="form-control-dark" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Длительность (мин)</label>
+                        <input type="number" name="duration" class="form-control-dark" placeholder="60" min="1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Ссылка на видео * (YouTube, Vimeo или прямая ссылка)</label>
+                    <input type="url" name="videoUrl" class="form-control-dark" required placeholder="https://youtube.com/watch?v=...">
+                </div>
+                <div class="pc-form-row">
+                    <div class="form-group">
+                        <label>Спикер</label>
+                        <input type="text" name="speaker" class="form-control-dark" placeholder="Имя спикера">
+                    </div>
+                    <div class="form-group">
+                        <label>Категория</label>
+                        <input type="text" name="category" class="form-control-dark" placeholder="Например: Разбор кода">
+                    </div>
+                    <div class="form-group" style="flex:2;">
+                        <label>Обложка (URL)</label>
+                        <input type="url" name="thumbnailUrl" class="form-control-dark" placeholder="https://...">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Описание</label>
+                    <textarea name="description" class="form-control-dark" rows="2" placeholder="Краткое описание вебинара" style="resize:vertical;"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i>Добавить вебинар</button>
+            </form>
+        </div>
+
+        <div class="pc-table-wrap">
+            <table class="pc-table">
+                <thead>
+                    <tr>
+                        <th>Название</th>
+                        <th>Спикер</th>
+                        <th>Категория</th>
+                        <th>Дата</th>
+                        <th>Длит.</th>
+                        <th>Просмотры</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (webinars.length === 0) { %>
+                        <tr><td colspan="7" class="pc-empty-row">Вебинаров пока нет. Добавьте первый!</td></tr>
+                    <% } else { %>
+                        <% webinars.forEach(wb => { %>
+                        <tr>
+                            <td>
+                                <strong><%= wb.title %></strong>
+                                <% if (!wb.isActive) { %><span class="tag-small ms-1" style="background:rgba(239,68,68,.15);color:#ef4444;">скрыт</span><% } %>
+                            </td>
+                            <td><%= wb.speaker || '—' %></td>
+                            <td><% if (wb.category) { %><span class="tag-small"><%= wb.category %></span><% } else { %>—<% } %></td>
+                            <td><%= new Date(wb.date).toLocaleDateString('ru-RU') %></td>
+                            <td><%= wb.duration ? wb.duration + ' мин' : '—' %></td>
+                            <td><%= wb.views %></td>
+                            <td>
+                                <form method="POST" action="/admin/premium/webinars/<%= wb.id %>/delete" onsubmit="return confirm('Удалить вебинар «<%= (wb.title||'').replace(/'/g, '') %>»?')">
+                                    <button type="submit" class="btn btn-sm" style="background:rgba(239,68,68,.15);color:#ef4444;border:none;padding:4px 10px;">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        <% }) %>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <%# ===== PDF MATERIALS ===== %>
+    <div class="pc-section">
+        <div class="pc-section-title"><i class="fas fa-file-pdf" style="color:#ef4444;"></i>PDF материалы (<%= pdfs.length %>)</div>
+
+        <div class="pc-add-card">
+            <div class="pc-add-title"><i class="fas fa-upload me-1"></i>Загрузить PDF</div>
+            <form method="POST" action="/admin/premium/pdfs" enctype="multipart/form-data">
+                <div class="pc-form-row">
+                    <div class="form-group" style="flex:2; min-width:220px;">
+                        <label>Название *</label>
+                        <input type="text" name="title" class="form-control-dark" required placeholder="Название материала">
+                    </div>
+                    <div class="form-group">
+                        <label>Категория</label>
+                        <select name="category" class="form-control-dark">
+                            <option value="">— выберите —</option>
+                            <option value="Шаблон">Шаблон</option>
+                            <option value="Чек-лист">Чек-лист</option>
+                            <option value="Конспект">Конспект</option>
+                            <option value="Задание">Задание</option>
+                            <option value="Справочник">Справочник</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="pc-form-row">
+                    <div class="form-group">
+                        <label>Курс (необязательно)</label>
+                        <select name="courseId" class="form-control-dark">
+                            <option value="">— без привязки к курсу —</option>
+                            <% courses.forEach(c => { %>
+                                <option value="<%= c.id %>"><%= c.title %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Модуль</label>
+                        <input type="text" name="module" class="form-control-dark" placeholder="Например: Модуль 1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Описание</label>
+                    <textarea name="description" class="form-control-dark" rows="2" placeholder="Краткое описание материала" style="resize:vertical;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>PDF файл * (макс. 50 МБ)</label>
+                    <input type="file" name="pdfFile" accept=".pdf,application/pdf" class="form-control-dark" required style="cursor:pointer;">
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-upload me-1"></i>Загрузить PDF</button>
+            </form>
+        </div>
+
+        <div class="pc-table-wrap">
+            <table class="pc-table">
+                <thead>
+                    <tr>
+                        <th>Название</th>
+                        <th>Категория</th>
+                        <th>Курс</th>
+                        <th>Модуль</th>
+                        <th>Размер</th>
+                        <th>Скачали</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (pdfs.length === 0) { %>
+                        <tr><td colspan="7" class="pc-empty-row">PDF материалов пока нет. Загрузите первый!</td></tr>
+                    <% } else { %>
+                        <% pdfs.forEach(mat => { %>
+                        <tr>
+                            <td>
+                                <strong><%= mat.title %></strong>
+                                <div style="font-size:0.78rem;color:var(--text-secondary);"><%= mat.fileName %></div>
+                            </td>
+                            <td><% if (mat.category) { %><span class="tag-small"><%= mat.category %></span><% } else { %>—<% } %></td>
+                            <td><%= mat.Course ? mat.Course.title : '—' %></td>
+                            <td><%= mat.module || '—' %></td>
+                            <td>
+                                <%
+                                    const bytes = mat.fileSize || 0;
+                                    const size = bytes < 1024*1024 ? Math.round(bytes/1024) + ' КБ' : (bytes/(1024*1024)).toFixed(1) + ' МБ';
+                                %>
+                                <%= bytes ? size : '—' %>
+                            </td>
+                            <td><%= mat.downloads %></td>
+                            <td>
+                                <form method="POST" action="/admin/premium/pdfs/<%= mat.id %>/delete" onsubmit="return confirm('Удалить «<%= (mat.title||'').replace(/'/g, '') %>»?')">
+                                    <button type="submit" class="btn btn-sm" style="background:rgba(239,68,68,.15);color:#ef4444;border:none;padding:4px 10px;">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        <% }) %>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

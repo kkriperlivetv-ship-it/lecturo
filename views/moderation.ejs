@@ -1,0 +1,126 @@
+<style>
+    .moderation-page h1 { margin-bottom: 0.4rem; }
+    .moderation-subtitle { color: var(--text-secondary); margin-bottom: 2rem; }
+
+    .mod-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.25rem;
+    }
+    .mod-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 0.75rem;
+    }
+    .mod-card-title { font-size: 1.15rem; font-weight: 600; margin: 0; }
+    .mod-card-meta { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.6rem; }
+    .mod-card-desc { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem; }
+
+    .mod-actions { display: flex; gap: 0.75rem; align-items: flex-start; flex-wrap: wrap; }
+    .mod-reject-block { display: none; margin-top: 0.75rem; }
+    .mod-reject-block textarea {
+        width: 100%;
+        padding: 0.6rem 0.8rem;
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        color: var(--text-primary);
+        resize: vertical;
+        min-height: 72px;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+    .mod-reject-block textarea:focus { outline: none; border-color: var(--accent); }
+
+    .empty-moderation {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-secondary);
+    }
+    .empty-moderation i { font-size: 3rem; margin-bottom: 1rem; display: block; color: var(--success); }
+</style>
+
+<div class="moderation-page">
+    <h1><i class="fas fa-check-circle me-2"></i>Модерация курсов</h1>
+    <p class="moderation-subtitle">Курсы, ожидающие проверки перед публикацией</p>
+
+    <% if (messages && messages.success) { %>
+        <div class="alert alert-success"><%= messages.success %></div>
+    <% } %>
+    <% if (messages && messages.error) { %>
+        <div class="alert alert-danger"><%= messages.error %></div>
+    <% } %>
+
+    <% if (pendingCourses.length === 0) { %>
+        <div class="empty-moderation">
+            <i class="fas fa-check-double"></i>
+            <h3>Нет курсов на проверке</h3>
+            <p>Все курсы проверены. Новые появятся здесь после создания.</p>
+        </div>
+    <% } else { %>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+            Курсов на проверке: <strong style="color: var(--text-primary);"><%= pendingCourses.length %></strong>
+        </p>
+        <% pendingCourses.forEach(course => { %>
+            <div class="mod-card">
+                <div class="mod-card-header">
+                    <div>
+                        <h3 class="mod-card-title"><%= course.title %></h3>
+                        <div class="mod-card-meta">
+                            <i class="fas fa-tag me-1"></i><%= course.genre %>
+                            &nbsp;·&nbsp;
+                            <i class="far fa-clock me-1"></i><%= course.totalTime %> мин.
+                            &nbsp;·&nbsp;
+                            <i class="fas fa-user me-1"></i>
+                            <% if (course.User) { %>
+                                <%= course.User.username %> (<%= course.User.email %>)
+                            <% } else { %>
+                                Неизвестный автор
+                            <% } %>
+                            &nbsp;·&nbsp;
+                            <i class="far fa-calendar me-1"></i><%= new Date(course.createdAt).toLocaleDateString('ru-RU') %>
+                        </div>
+                    </div>
+                    <a href="/courses/<%= course.id %>" target="_blank" class="btn btn-sm btn-outline-primary" style="white-space:nowrap;">
+                        <i class="fas fa-eye"></i> Просмотр
+                    </a>
+                </div>
+
+                <p class="mod-card-desc"><%= course.description.length > 200 ? course.description.substring(0, 200) + '...' : course.description %></p>
+
+                <div class="mod-actions">
+                    <form method="POST" action="/moderation/<%= course.id %>/approve">
+                        <button type="submit" class="btn btn-success btn-small">
+                            <i class="fas fa-check"></i> Одобрить
+                        </button>
+                    </form>
+                    <button type="button" class="btn btn-danger btn-small" onclick="toggleReject(this, '<%= course.id %>')">
+                        <i class="fas fa-times"></i> Отклонить
+                    </button>
+                </div>
+
+                <div class="mod-reject-block" id="reject-block-<%= course.id %>">
+                    <form method="POST" action="/moderation/<%= course.id %>/reject">
+                        <textarea name="comment" placeholder="Причина отклонения (необязательно)"></textarea>
+                        <div style="display:flex; gap: 0.5rem;">
+                            <button type="submit" class="btn btn-danger btn-small">Подтвердить отклонение</button>
+                            <button type="button" class="btn btn-outline btn-small" onclick="toggleReject(null, '<%= course.id %>')">Отмена</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        <% }) %>
+    <% } %>
+</div>
+
+<script>
+function toggleReject(btn, courseId) {
+    const block = document.getElementById('reject-block-' + courseId);
+    const isShown = block.style.display === 'block';
+    block.style.display = isShown ? 'none' : 'block';
+}
+</script>

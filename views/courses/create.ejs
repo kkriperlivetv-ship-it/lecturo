@@ -1,0 +1,49 @@
+<div class="create-course">
+    <h1>Создание нового курса</h1>
+    <p>Заполните информацию о курсе. После создания вы сможете добавить уроки.</p>
+
+    <% if (error) { %>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i> <%= error %>
+        </div>
+    <% } %>
+
+    <form method="POST" action="/courses/create" class="course-form">
+        <div class="form-group">
+            <label for="title">Название курса *</label>
+            <input type="text" id="title" name="title" required placeholder="Например: JavaScript для начинающих">
+        </div>
+        <div class="form-group">
+            <label for="genre">Жанр *</label>
+            <select id="genre" name="genre" required>
+                <option value="">Выберите жанр</option>
+                <option value="Программирование">Программирование</option>
+                <option value="Дизайн">Дизайн</option>
+                <option value="Маркетинг">Маркетинг</option>
+                <option value="Бизнес">Бизнес</option>
+                <option value="Искусство">Искусство</option>
+                <option value="Наука">Наука</option>
+                <option value="Здоровье">Здоровье</option>
+                <option value="Другое">Другое</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="description">Описание курса *</label>
+            <textarea id="description" name="description" rows="5" required placeholder="Опишите, чему научатся студенты, какие темы будут рассмотрены..."></textarea>
+        </div>
+        <div class="form-group">
+            <label for="totalTime">Общее время курса (минуты) *</label>
+            <input type="number" id="totalTime" name="totalTime" min="0" required placeholder="120">
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Создать курс</button>
+            <a href="/courses" class="btn btn-outline">Отмена</a>
+        </div>
+    </form>
+
+    <div class="info-box">
+        <h3><i class="fas fa-info-circle"></i> Как добавить уроки?</h3>
+        <p>После создания курса вы перейдете на его страницу, где сможете добавлять уроки с видео URL.</p>
+    </div>
+</div>

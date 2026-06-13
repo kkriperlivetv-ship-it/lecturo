@@ -1,0 +1,45 @@
+<div class="auth-container">
+    <div class="auth-card">
+        <h2 class="auth-title">Восстановление пароля</h2>
+        <p class="auth-subtitle">Введите email, указанный при регистрации. Мы отправим вам ссылку для сброса пароля.</p>
+        
+        <% if (error) { %>
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i> <%= error %>
+            </div>
+        <% } %>
+        
+        <% if (success) { %>
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i> <%= success %>
+            </div>
+            
+            <% if (demoMode && resetUrl) { %>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> <strong>Демо-режим:</strong> Email не отправляется. Ссылка для сброса пароля выведена в консоль сервера.
+                </div>
+                <div class="demo-link">
+                    <p>Вы можете скопировать ссылку для тестирования:</p>
+                    <code><%= resetUrl %></code>
+                </div>
+            <% } %>
+        <% } %>
+
+        <form method="POST" action="/auth/forgot" class="auth-form">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required placeholder="example@mail.ru">
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Отправить ссылку</button>
+        </form>
+        
+        <div class="auth-links">
+            <a href="/auth/login" class="btn btn-outline">
+                <i class="fas fa-arrow-left"></i> Вернуться ко входу
+            </a>
+            <a href="/auth/register" class="btn btn-outline">
+                <i class="fas fa-user-plus"></i> Создать аккаунт
+            </a>
+        </div>
+    </div>
+</div>

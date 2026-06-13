@@ -1,0 +1,1386 @@
+<style>
+    .profile-container {
+        max-width: 800px;
+        margin: 1.5rem auto;
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+        outline: none !important;
+        /* Изоляция для предотвращения свечения DotField */
+        isolation: isolate;
+        position: relative;
+        z-index: 1;
+        overflow: hidden;
+        clip-path: inset(0 0 0 0);
+    }
+    /* Убираем розовый контур - отключаем backdrop-filter */
+    .profile-container {
+        backdrop-filter: none !important;
+    }
+    /* Изменяем цвет свечения DotField на синий */
+    #global-dot-field circle {
+        filter: hue-rotate(180deg) saturate(0.5) !important;
+    }
+    .profile-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: #4A6FFF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+        margin-right: 1.5rem;
+    }
+    .profile-info h1 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.75rem;
+    }
+    .profile-info .email {
+        color: #aaa;
+        font-size: 1rem;
+    }
+    .profile-info .role-badge {
+        display: inline-block;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+    .profile-info .role-badge.admin {
+        background: #dc3545;
+    }
+    .profile-info .role-badge.user {
+        background: #6c757d;
+    }
+    .profile-info .role-badge.owner {
+        background: #6f42c1;
+    }
+    .profile-sections {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+    @media (max-width: 768px) {
+        .profile-sections {
+            grid-template-columns: 1fr;
+        }
+    }
+    .section-card {
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 15px;
+        padding: 1.25rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .section-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    .section-title {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        color: #4A6FFF;
+        display: flex;
+        align-items: center;
+    }
+    .section-title i {
+        margin-right: 0.5rem;
+    }
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    .stat-item {
+        text-align: center;
+        padding: 0.875rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 10px;
+    }
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: bold;
+        color: #4A6FFF;
+    }
+    .stat-label {
+        font-size: 0.875rem;
+        color: #aaa;
+        margin-top: 0.25rem;
+    }
+    .progress-bar {
+        height: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+        overflow: hidden;
+        margin: 1rem 0;
+    }
+    .progress-fill {
+        height: 100%;
+        background: #4A6FFF;
+        border-radius: 5px;
+    }
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #ddd;
+    }
+    .form-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: white;
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+    .form-input:focus {
+        outline: none;
+        border-color: #4A6FFF;
+        box-shadow: 0 0 0 2px rgba(74, 111, 255, 0.3);
+    }
+    .btn-save {
+        background: #4A6FFF;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(74, 111, 255, 0.4);
+    }
+    
+    .btn-logout {
+        position: absolute;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        background: rgba(220, 53, 69, 0.2);
+        color: #ff6b6b;
+        border: 1px solid rgba(220, 53, 69, 0.3);
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s, background 0.2s, color 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .btn-logout:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+        background: rgba(220, 53, 69, 0.3);
+        color: #ff8787;
+        border-color: rgba(220, 53, 69, 0.4);
+    }
+    .alert {
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+        display: none;
+    }
+    .alert-success {
+        background: rgba(40, 167, 69, 0.2);
+        border: 1px solid rgba(40, 167, 69, 0.3);
+        color: #28a745;
+    }
+    .alert-error {
+        background: rgba(220, 53, 69, 0.2);
+        border: 1px solid rgba(220, 53, 69, 0.3);
+        color: #dc3545;
+    }
+    .back-link {
+        display: inline-block;
+        margin-top: 2rem;
+        color: #4A6FFF;
+        text-decoration: none;
+    }
+    .back-link:hover {
+        text-decoration: underline;
+    }
+    
+    /* Стили для диаграммы */
+    .genre-chart-container {
+        margin-top: 1rem;
+        padding: 0.875rem;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .genre-chart-title {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        color: #ddd;
+        display: flex;
+        align-items: center;
+    }
+    .genre-chart-title i {
+        margin-right: 0.5rem;
+        color: #4A6FFF;
+    }
+    .genre-chart {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 2rem;
+    }
+    .pie-chart {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        position: relative;
+        background: conic-gradient(
+            #4A6FFF 0% 30%,
+            #FF6B6B 30% 60%,
+            #4ECDC4 60% 90%,
+            #FFD166 90% 100%
+        );
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    .chart-legend {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        min-width: 200px;
+    }
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .legend-color {
+        width: 16px;
+        height: 16px;
+        border-radius: 4px;
+    }
+    .legend-label {
+        color: #ddd;
+        font-size: 0.9rem;
+    }
+    .legend-percent {
+        color: #aaa;
+        font-size: 0.85rem;
+        margin-left: auto;
+    }
+    .no-genre-data {
+        text-align: center;
+        padding: 2rem;
+        color: #aaa;
+        font-style: italic;
+    }
+    .security-panel {
+        margin-top: 1.5rem;
+        padding: 1.25rem;
+        border-radius: 16px;
+        background: rgba(74, 111, 255, 0.08);
+        border: 1px solid rgba(74, 111, 255, 0.2);
+    }
+    .security-status {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.45rem 0.9rem;
+        border-radius: 999px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    .status-pill.enabled {
+        background: rgba(25, 135, 84, 0.16);
+        color: #7ee2a8;
+    }
+    .status-pill.disabled {
+        background: rgba(220, 53, 69, 0.16);
+        color: #ff9aa5;
+    }
+    .security-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+    .security-btn {
+        border: none;
+        border-radius: 12px;
+        padding: 0.8rem 1.1rem;
+        font-weight: 600;
+        color: white;
+        cursor: pointer;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+    .security-btn:hover {
+        transform: translateY(-1px);
+    }
+    .security-btn.primary {
+        background: linear-gradient(135deg, #4A6FFF, #6f8cff);
+    }
+    .security-btn.danger {
+        background: linear-gradient(135deg, #d9534f, #ff7b76);
+    }
+    .security-btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+    }
+    .setup-panel {
+        display: none;
+        margin-top: 1rem;
+        padding: 1rem;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .setup-panel.active {
+        display: block;
+    }
+    .qr-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+    .qr-box img {
+        width: 220px;
+        max-width: 100%;
+        border-radius: 16px;
+        background: white;
+        padding: 0.75rem;
+    }
+    .manual-code {
+        width: 100%;
+        padding: 0.9rem 1rem;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.06);
+        color: #fff;
+        word-break: break-all;
+        border: 1px dashed rgba(255, 255, 255, 0.15);
+        font-family: monospace;
+    }
+    .inline-code-form {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-top: 1rem;
+    }
+    .inline-code-form input {
+        flex: 1 1 180px;
+        min-width: 180px;
+    }
+    
+    /* Стили для кошелька и подписки */
+    .wallet-card {
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 15px;
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .wallet-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    .wallet-balance {
+        font-size: 2.25rem;
+        font-weight: bold;
+        color: white;
+        margin: 0.5rem 0;
+    }
+    .wallet-currency {
+        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    .wallet-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.25rem;
+    }
+    .btn-deposit {
+        background: linear-gradient(135deg, #00b09b, #96c93d);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        flex: 1;
+    }
+    .btn-deposit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 176, 155, 0.4);
+    }
+    .btn-subscribe {
+        background: linear-gradient(135deg, #9D4EDD, #4A6FFF);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        flex: 1;
+    }
+    .btn-subscribe:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(157, 78, 221, 0.4);
+    }
+    .subscription-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        padding: 0.75rem;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.05);
+    }
+    .subscription-active {
+        color: #00b09b;
+        background: rgba(0, 176, 155, 0.1);
+    }
+    .subscription-inactive {
+        color: #ff6b6b;
+        background: rgba(255, 107, 107, 0.1);
+    }
+    .subscription-features {
+        margin-top: 1.5rem;
+    }
+    .feature-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
+        padding: 0.625rem;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.02);
+    }
+    .feature-item i {
+        color: #4A6FFF;
+        width: 20px;
+    }
+    .feature-item.active {
+        background: rgba(74, 111, 255, 0.1);
+    }
+    .deposit-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+    .deposit-modal-content {
+        background: rgba(30, 30, 40, 0.95);
+        border-radius: 20px;
+        padding: 2rem;
+        width: 90%;
+        max-width: 500px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+    }
+    .modal-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        color: white;
+    }
+    .amount-buttons {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+    .amount-btn {
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .amount-btn:hover {
+        background: rgba(74, 111, 255, 0.2);
+        border-color: #4A6FFF;
+    }
+    .amount-btn.active {
+        background: rgba(74, 111, 255, 0.3);
+        border-color: #4A6FFF;
+        color: #4A6FFF;
+    }
+    .subscription-features-list {
+        display: grid;
+        gap: 0.85rem;
+        margin-top: 1rem;
+    }
+    .subscription-feature-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.9rem 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        color: #ddd;
+    }
+    .subscription-feature-item i {
+        color: #4A6FFF;
+        margin-top: 0.15rem;
+    }
+
+    /* Tracked courses */
+    .tracked-courses-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        max-height: 420px;
+        overflow-y: auto;
+        padding-right: 2px;
+    }
+    .tracked-courses-list::-webkit-scrollbar { width: 4px; }
+    .tracked-courses-list::-webkit-scrollbar-track { background: transparent; }
+    .tracked-courses-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+    .tracked-course-card {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 12px;
+        padding: 0.9rem 1rem;
+        transition: border-color 0.2s, transform 0.15s;
+    }
+    .tracked-course-card:hover {
+        border-color: rgba(74, 111, 255, 0.35);
+        transform: translateY(-1px);
+    }
+    .tracked-course-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .tracked-course-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #fff;
+        margin: 0;
+        line-height: 1.3;
+    }
+    .tracked-course-genre {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.55rem;
+        border-radius: 20px;
+        background: rgba(74,111,255,0.18);
+        color: #7c9dff;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    .tracked-progress-wrap {
+        height: 6px;
+        background: rgba(255,255,255,0.08);
+        border-radius: 3px;
+        overflow: hidden;
+        margin-bottom: 0.55rem;
+    }
+    .tracked-progress-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.6s ease;
+    }
+    .tracked-progress-fill.completed { background: #2ED573; }
+    .tracked-progress-fill.in-progress { background: #4A6FFF; }
+    .tracked-progress-fill.not-started { background: #6c757d; }
+    .tracked-course-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .tracked-status-badge {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 20px;
+        font-weight: 500;
+    }
+    .tracked-status-badge.completed { background: rgba(46,213,115,0.15); color: #2ED573; }
+    .tracked-status-badge.in-progress { background: rgba(74,111,255,0.15); color: #7c9dff; }
+    .tracked-status-badge.not-started { background: rgba(108,117,125,0.2); color: #aaa; }
+    .tracked-course-pct {
+        font-size: 0.8rem;
+        color: #aaa;
+    }
+    .tracked-course-link {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.7rem;
+        border-radius: 6px;
+        background: rgba(74,111,255,0.2);
+        color: #7c9dff;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: background 0.2s;
+    }
+    .tracked-course-link:hover { background: rgba(74,111,255,0.35); color: #adc4ff; }
+    .no-tracked-courses {
+        color: #888;
+        font-size: 0.9rem;
+        text-align: center;
+        padding: 1.5rem 0;
+    }
+</style>
+
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="profile-avatar">
+            <i class="fas fa-user"></i>
+        </div>
+        <div class="profile-info">
+            <h1 id="username-display" class="<%= user.hasActiveSubscription ? 'premium-user' : '' %>"><%= user.username %></h1>
+            <div class="email"><%= user.email %></div>
+            <div class="role-badge <%= user.role === 'admin' ? 'admin' : user.role === 'owner' ? 'owner' : 'user' %>">
+                <%= user.role === 'admin' ? 'Администратор' : user.role === 'owner' ? 'Владелец' : 'Пользователь' %>
+            </div>
+            <div class="mt-2" style="color: white;">Зарегистрирован: <%= new Date(user.createdAt).toLocaleDateString('ru-RU') %></div>
+        </div>
+    </div>
+
+    <div class="profile-sections">
+        <div class="section-card">
+            <h3 class="section-title"><i class="fas fa-chart-line"></i> Статистика обучения</h3>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value"><%= stats.totalEnrolledCourses %></div>
+                    <div class="stat-label">Записан на курсов</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value"><%= stats.coursesCompleted %></div>
+                    <div class="stat-label">Завершено</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value"><%= stats.coursesInProgress %></div>
+                    <div class="stat-label">В процессе</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value"><%= stats.averageProgress %>%</div>
+                    <div class="stat-label">Ср. прогресс</div>
+                </div>
+            </div>
+
+            <div class="genre-chart-container">
+                <h4 class="genre-chart-title"><i class="fas fa-chart-pie"></i> Прогресс по жанрам</h4>
+                <% if (genreStats && genreStats.length > 0) { %>
+                    <div class="genre-chart">
+                        <div class="pie-chart" id="genrePieChart"></div>
+                        <div class="chart-legend" id="genreLegend">
+                            <%
+                            const colors = ['#4A6FFF', '#FF6B6B', '#4ECDC4', '#FFD166', '#9D4EDD', '#FF9E6D'];
+                            let totalProgress = genreStats.reduce((sum, g) => sum + g.averageProgress, 0);
+                            genreStats.forEach((genre, idx) => {
+                                const percent = totalProgress > 0 ? Math.round((genre.averageProgress / totalProgress) * 100) : 0;
+                            %>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: <%= colors[idx % colors.length] %>;"></div>
+                                <span class="legend-label"><%= genre.genre %></span>
+                                <span class="legend-percent"><%= percent %>%</span>
+                            </div>
+                            <% }); %>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <div class="no-genre-data">
+                        <i class="fas fa-chart-pie fa-2x"></i>
+                        <p>У вас пока нет прогресса по курсам с жанрами.</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h3 class="section-title"><i class="fas fa-book-open"></i> Отслеживаемые курсы</h3>
+            <div class="tracked-courses-list">
+                <% if (userProgresses && userProgresses.length > 0) { %>
+                    <% userProgresses.forEach(progress => { %>
+                        <% if (!progress.Course) { return; } %>
+                        <%
+                            const pct = progress.progress || 0;
+                            const st = progress.status || 'not_started';
+                            const stLabel = st === 'completed' ? 'Завершён' : st === 'in_progress' ? 'В процессе' : 'Не начат';
+                        %>
+                        <div class="tracked-course-card">
+                            <div class="tracked-course-top">
+                                <h4 class="tracked-course-title"><%= progress.Course.title %></h4>
+                                <span class="tracked-course-genre"><%= progress.Course.genre %></span>
+                            </div>
+                            <div class="tracked-progress-wrap">
+                                <div class="tracked-progress-fill <%= st %>" data-pct="<%= pct %>"></div>
+                            </div>
+                            <div class="tracked-course-bottom">
+                                <div style="display:flex; align-items:center; gap:0.5rem;">
+                                    <span class="tracked-status-badge <%= st %>"><%= stLabel %></span>
+                                    <span class="tracked-course-pct"><%= pct %>%</span>
+                                </div>
+                                <a href="/courses/<%= progress.Course.id %>" class="tracked-course-link">
+                                    <%= st === 'completed' ? 'Просмотр' : 'Продолжить' %> →
+                                </a>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <p class="no-tracked-courses">Вы пока не записаны ни на один курс.<br>Зайдите в каталог и нажмите «Начать курс».</p>
+                <% } %>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h3 class="section-title"><i class="fas fa-wallet"></i> Кошелек и подписка</h3>
+            
+            <div class="wallet-card">
+                <h4 style="color: white; margin-bottom: 0.5rem;">Ваш баланс</h4>
+                <div class="wallet-balance" id="wallet-balance">0.00</div>
+                <div class="wallet-currency">RUB</div>
+                
+                <!-- DEBUG: hasActiveSubscription=<%= user.hasActiveSubscription %>, subscriptionExpiresAt=<%= user.subscriptionExpiresAt %> -->
+                <div class="subscription-status <%= user.hasActiveSubscription ? 'subscription-active' : 'subscription-inactive' %>">
+                    <i class="fas <%= user.hasActiveSubscription ? 'fa-crown' : 'fa-star' %>"></i>
+                    <span id="subscription-status-text">
+                        <%= user.hasActiveSubscription ? 'Подписка активна' : 'Подписка не активна' %>
+                    </span>
+                    <% if (user.hasActiveSubscription && user.subscriptionExpiresAt) { %>
+                        <span style="margin-left: auto;">
+                            До: <%= new Date(user.subscriptionExpiresAt).toLocaleDateString('ru-RU') %>
+                        </span>
+                    <% } %>
+                </div>
+                
+<div class="wallet-actions">
+                         <button type="button" class="btn-deposit" id="deposit-btn" onclick="document.getElementById('deposit-modal').style.display='flex'; console.log('Deposit button clicked');">
+                             <i class="fas fa-plus-circle me-1"></i> Пополнить через СБП
+                         </button>
+                         <button type="button" class="btn-subscribe" id="subscribe-btn">
+                             <i class="fas fa-crown me-1"></i>
+                             <%= user.hasActiveSubscription ? 'Управление подпиской' : 'Оформить подписку (150₽/мес)' %>
+                         </button>
+                     </div>
+
+                 </div>
+            
+            <div id="wallet-alert-success" class="alert alert-success" style="display: none;"></div>
+            <div id="wallet-alert-error" class="alert alert-error" style="display: none;"></div>
+        </div>
+
+        <div class="section-card">
+            <h3 class="section-title"><i class="fas fa-user-edit"></i> Редактирование профиля</h3>
+            
+            <div id="alert-success" class="alert alert-success" style="display: none;"></div>
+            <div id="alert-error" class="alert alert-error" style="display: none;"></div>
+
+            <form id="update-username-form">
+                <div class="form-group">
+                    <label class="form-label" for="username">Имя пользователя</label>
+                    <input type="text" id="username" class="form-input" value="<%= user.username %>" required minlength="3">
+                    <small style="color: white;">Имя будет отображаться в системе и на вашем профиле.</small>
+                </div>
+                <button type="submit" class="btn-save" id="save-username-btn">
+                    <i class="fas fa-save me-1"></i> Сохранить изменения
+                </button>
+            </form>
+
+            <div class="mt-4">
+                <h4 class="section-title"><i class="fas fa-lock"></i> Безопасность</h4>
+                <div class="security-panel">
+                    <div class="security-status">
+                        <div>
+                            <strong style="display:block; margin-bottom:0.25rem; color:#fff;">Двухфакторная аутентификация</strong>
+                            <span style="color:#bbb;">Защитите вход в Lecturo кодом из приложения Google Authenticator, Authy или Microsoft Authenticator.</span>
+                        </div>
+                        <div class="status-pill <%= user.twoFactorEnabled ? 'enabled' : 'disabled' %>" id="twofa-status-pill">
+                            <i class="fas <%= user.twoFactorEnabled ? 'fa-shield-check' : 'fa-shield-alt' %>"></i>
+                            <span id="twofa-status-text"><%= user.twoFactorEnabled ? '2FA включена' : '2FA отключена' %></span>
+                        </div>
+                    </div>
+
+                    <div class="security-actions">
+                        <% if (!user.twoFactorEnabled) { %>
+                            <button type="button" class="security-btn primary" id="start-2fa-btn">
+                                <i class="fas fa-mobile-alt me-1"></i> Включить 2FA
+                            </button>
+                        <% } else { %>
+                            <button type="button" class="security-btn danger" id="disable-2fa-btn">
+                                <i class="fas fa-unlock-alt me-1"></i> Отключить 2FA
+                            </button>
+                        <% } %>
+                    </div>
+
+                    <div class="setup-panel" id="setup-2fa-panel">
+                        <p style="color:#ddd; margin-bottom:0.75rem;">1. Отсканируйте QR-код в приложении-аутентификаторе.</p>
+                        <div class="qr-box">
+                            <img id="twofa-qr" alt="QR-код для 2FA">
+                            <div class="manual-code" id="twofa-manual-code"></div>
+                        </div>
+                        <p style="color:#ddd; margin-bottom:0.5rem;">2. Введите 6-значный код из приложения, чтобы подтвердить включение.</p>
+                        <div class="inline-code-form">
+                            <input type="text" class="form-input" id="enable-2fa-code" inputmode="numeric" maxlength="6" placeholder="123456">
+                            <button type="button" class="security-btn primary" id="confirm-2fa-btn">Подтвердить</button>
+                        </div>
+                    </div>
+
+                    <div class="setup-panel <%= user.twoFactorEnabled ? 'active' : '' %>" id="disable-2fa-panel">
+                        <p style="color:#ddd; margin-bottom:0.5rem;">Введите текущий код из приложения, чтобы отключить двухфакторную аутентификацию.</p>
+                        <div class="inline-code-form">
+                            <input type="text" class="form-input" id="disable-2fa-code" inputmode="numeric" maxlength="6" placeholder="123456">
+                            <button type="button" class="security-btn danger" id="confirm-disable-2fa-btn">Отключить 2FA</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="/" class="back-link"><i class="fas fa-arrow-left me-1"></i> Вернуться на главную</a>
+    <a href="/auth/logout" class="btn-logout"><i class="fas fa-sign-out-alt me-1"></i> Выйти</a>
+</div>
+
+<!-- Модальное окно для пополнения баланса -->
+<div class="deposit-modal" id="deposit-modal">
+    <div class="deposit-modal-content">
+        <h3 class="modal-title">Пополнение баланса через СБП</h3>
+        
+        <div id="deposit-step-1">
+            <div class="form-group">
+                <label class="form-label" for="deposit-amount">Сумма пополнения (RUB)</label>
+                <input type="number" id="deposit-amount" class="form-input" min="10" max="100000" step="10" value="150" placeholder="Введите сумму">
+            </div>
+            
+            <div class="amount-buttons">
+                <button type="button" class="amount-btn" data-amount="150">150₽</button>
+                <button type="button" class="amount-btn" data-amount="300">300₽</button>
+                <button type="button" class="amount-btn" data-amount="500">500₽</button>
+                <button type="button" class="amount-btn" data-amount="1000">1 000₽</button>
+                <button type="button" class="amount-btn" data-amount="2000">2 000₽</button>
+                <button type="button" class="amount-btn" data-amount="5000">5 000₽</button>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="sbp-phone">Номер телефона для СБП (опционально)</label>
+                <input type="tel" id="sbp-phone" class="form-input" placeholder="+7 (XXX) XXX-XX-XX">
+                <small style="color: #aaa;">Укажите номер, чтобы получать уведомления о платежах</small>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button type="button" class="btn-deposit" id="confirm-deposit-btn" style="flex: 1;">
+                    <i class="fas fa-qrcode me-1"></i> Сгенерировать QR
+                </button>
+                <button type="button" class="btn-subscribe" id="cancel-deposit-btn" style="flex: 1; background: #6c757d;">
+                    <i class="fas fa-times me-1"></i> Отмена
+                </button>
+            </div>
+        </div>
+        
+        <div id="deposit-step-2" style="display: none;">
+            <div class="qr-box">
+                <img id="deposit-qr-code" alt="QR-код для СБП" style="width: 250px; background: white; padding: 10px; border-radius: 10px;">
+            </div>
+            <p style="color: #ddd; text-align: center; margin: 1rem 0;">Отсканируйте QR-код в банковском приложении</p>
+            <div id="payment-status" style="color: #4A6FFF; text-align: center; margin: 1rem 0;">Ожидание оплаты...</div>
+            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                <button type="button" class="btn-deposit" id="check-payment-btn" style="flex: 1;">
+                    <i class="fas fa-sync-alt me-1"></i> Проверить статус
+                </button>
+                <button type="button" class="btn-subscribe" id="cancel-deposit-btn-2" style="flex: 1; background: #6c757d;">
+                    <i class="fas fa-times me-1"></i> Отмена
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Инициализация прогресс-баров отслеживаемых курсов
+        document.querySelectorAll('.tracked-progress-fill').forEach(function(el) {
+            el.style.width = (el.dataset.pct || 0) + '%';
+        });
+
+        const form = document.getElementById('update-username-form');
+        const alertSuccess = document.getElementById('alert-success');
+        const alertError = document.getElementById('alert-error');
+        const usernameDisplay = document.getElementById('username-display');
+        const saveBtn = document.getElementById('save-username-btn');
+        const start2faBtn = document.getElementById('start-2fa-btn');
+        const confirm2faBtn = document.getElementById('confirm-2fa-btn');
+        const disable2faBtn = document.getElementById('disable-2fa-btn');
+        const confirmDisable2faBtn = document.getElementById('confirm-disable-2fa-btn');
+        const setupPanel = document.getElementById('setup-2fa-panel');
+        const disablePanel = document.getElementById('disable-2fa-panel');
+        const qrImage = document.getElementById('twofa-qr');
+        const manualCode = document.getElementById('twofa-manual-code');
+        const statusPill = document.getElementById('twofa-status-pill');
+        const statusText = document.getElementById('twofa-status-text');
+
+        // Прогресс-бар удалён, код больше не нужен
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            
+            if (username.length < 3) {
+                showAlert(alertError, 'Имя должно содержать минимум 3 символа');
+                return;
+            }
+
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Сохранение...';
+
+            try {
+                const response = await fetch('/auth/profile/update-username', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    usernameDisplay.textContent = data.username;
+                    showAlert(alertSuccess, data.message);
+                    // Обновляем имя в заголовке страницы
+                    document.title = `Мой профиль | ${data.username} - Lecturo`;
+                } else {
+                    showAlert(alertError, data.message);
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                showAlert(alertError, 'Ошибка сети или сервера');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save me-1"></i> Сохранить изменения';
+            }
+        });
+
+        if (start2faBtn) {
+            start2faBtn.addEventListener('click', async function() {
+                start2faBtn.disabled = true;
+                start2faBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Подготовка...';
+
+                try {
+                    const response = await fetch('/auth/profile/2fa/setup', { method: 'POST' });
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        throw new Error(data.message || 'Не удалось подготовить 2FA');
+                    }
+
+                    qrImage.src = data.qrCodeDataUrl;
+                    manualCode.textContent = `Ручной ключ: ${data.manualCode}`;
+                    setupPanel.classList.add('active');
+                    showAlert(alertSuccess, 'Отсканируйте QR-код и подтвердите настройку кодом из приложения.');
+                } catch (error) {
+                    showAlert(alertError, error.message || 'Ошибка настройки 2FA');
+                } finally {
+                    start2faBtn.disabled = false;
+                    start2faBtn.innerHTML = '<i class="fas fa-mobile-alt me-1"></i> Включить 2FA';
+                }
+            });
+        }
+
+        if (confirm2faBtn) {
+            confirm2faBtn.addEventListener('click', async function() {
+                const token = document.getElementById('enable-2fa-code').value.trim();
+
+                if (!/^\d{6}$/.test(token)) {
+                    showAlert(alertError, 'Введите корректный 6-значный код.');
+                    return;
+                }
+
+                confirm2faBtn.disabled = true;
+                confirm2faBtn.textContent = 'Подтверждение...';
+
+                try {
+                    const response = await fetch('/auth/profile/2fa/enable', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ token })
+                    });
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        throw new Error(data.message || 'Не удалось включить 2FA');
+                    }
+
+                    setupPanel.classList.remove('active');
+                    if (start2faBtn) {
+                        start2faBtn.style.display = 'none';
+                    }
+                    if (disablePanel) {
+                        disablePanel.style.display = 'block';
+                        disablePanel.classList.add('active');
+                    }
+                    if (statusPill) {
+                        statusPill.classList.remove('disabled');
+                        statusPill.classList.add('enabled');
+                    }
+                    if (statusText) {
+                        statusText.textContent = '2FA включена';
+                    }
+                    showAlert(alertSuccess, data.message);
+                    window.location.reload();
+                } catch (error) {
+                    showAlert(alertError, error.message || 'Ошибка включения 2FA');
+                } finally {
+                    confirm2faBtn.disabled = false;
+                    confirm2faBtn.textContent = 'Подтвердить';
+                }
+            });
+        }
+
+        if (confirmDisable2faBtn) {
+            confirmDisable2faBtn.addEventListener('click', async function() {
+                const token = document.getElementById('disable-2fa-code').value.trim();
+
+                if (!/^\d{6}$/.test(token)) {
+                    showAlert(alertError, 'Введите корректный 6-значный код.');
+                    return;
+                }
+
+                confirmDisable2faBtn.disabled = true;
+                confirmDisable2faBtn.textContent = 'Отключение...';
+
+                try {
+                    const response = await fetch('/auth/profile/2fa/disable', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ token })
+                    });
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        throw new Error(data.message || 'Не удалось отключить 2FA');
+                    }
+
+                    showAlert(alertSuccess, data.message);
+                    window.location.reload();
+                } catch (error) {
+                    showAlert(alertError, error.message || 'Ошибка отключения 2FA');
+                } finally {
+                    confirmDisable2faBtn.disabled = false;
+                    confirmDisable2faBtn.textContent = 'Отключить 2FA';
+                }
+            });
+        }
+
+        function showAlert(alertElement, message) {
+            alertElement.textContent = message;
+            alertElement.style.display = 'block';
+            setTimeout(() => {
+                alertElement.style.display = 'none';
+            }, 5000);
+        }
+
+        // Функции для работы с кошельком и подпиской
+        const depositBtn = document.getElementById('deposit-btn');
+        const subscribeBtn = document.getElementById('subscribe-btn');
+        const depositModal = document.getElementById('deposit-modal');
+        const cancelDepositBtn = document.getElementById('cancel-deposit-btn');
+        const confirmDepositBtn = document.getElementById('confirm-deposit-btn');
+        const depositAmountInput = document.getElementById('deposit-amount');
+        const amountButtons = document.querySelectorAll('.amount-btn');
+        const walletBalance = document.getElementById('wallet-balance');
+        const subscriptionStatus = document.querySelector('.subscription-status');
+        const subscriptionStatusText = document.getElementById('subscription-status-text');
+        const walletAlertSuccess = document.getElementById('wallet-alert-success');
+        const walletAlertError = document.getElementById('wallet-alert-error');
+
+        // Загружаем информацию о кошельке и подписке
+        async function loadWalletInfo() {
+            try {
+                const response = await fetch('/api/wallet');
+                const data = await response.json();
+                
+                if (data.success && data.wallet) {
+                    walletBalance.textContent = parseFloat(data.wallet.balance).toFixed(2);
+                }
+            } catch (error) {
+                console.error('Ошибка при загрузке информации о кошельке:', error);
+            }
+        }
+
+async function loadSubscriptionInfo() {
+             try {
+                 const response = await fetch('/api/subscription');
+                 const data = await response.json();
+                 console.log('Subscription API response:', data);
+
+                 if (!data.success) {
+                     return;
+                 }
+
+                 const hasSubscription = Boolean(data.userHasSubscription);
+                 const features = data.subscriptionFeatures || {};
+
+                 subscriptionStatus.classList.toggle('subscription-active', hasSubscription);
+                 subscriptionStatus.classList.toggle('subscription-inactive', !hasSubscription);
+                 subscriptionStatusText.textContent = hasSubscription ? 'Подписка активна' : 'Подписка не активна';
+
+                 subscribeBtn.disabled = hasSubscription;
+                 subscribeBtn.innerHTML = hasSubscription
+                     ? '<i class="fas fa-crown me-1"></i> Подписка активна'
+                     : '<i class="fas fa-crown me-1"></i> Оформить подписку (150₽/мес)';
+
+                 // Update feature items with proper icons
+                 const featureItems = document.querySelectorAll('.feature-item');
+                 featureItems.forEach((item, index) => {
+                     item.classList.toggle('active', hasSubscription);
+                     const icon = item.querySelector('i');
+                     const featureKeys = ['videoSearch', 'webinarArchive', 'pdfTemplates'];
+                     const featureKey = featureKeys[index];
+                     if (icon) {
+                         icon.className = hasSubscription && features[featureKey]
+                             ? 'fas fa-check'
+                             : 'fas fa-times';
+                     }
+                 });
+             } catch (error) {
+                 console.error('Ошибка при загрузке информации о подписке:', error);
+             }
+         }
+
+        // Инициализация при загрузке страницы
+        loadWalletInfo();
+        loadSubscriptionInfo();
+
+        // Открытие модального окна для пополнения
+        if (depositBtn) {
+            depositBtn.addEventListener('click', function() {
+                depositModal.style.display = 'flex';
+                document.getElementById('deposit-step-1').style.display = 'block';
+                document.getElementById('deposit-step-2').style.display = 'none';
+            });
+        }
+
+        // Закрытие модального окна
+        if (cancelDepositBtn) {
+            cancelDepositBtn.addEventListener('click', function() {
+                depositModal.style.display = 'none';
+            });
+        }
+        
+        if (document.getElementById('cancel-deposit-btn-2')) {
+            document.getElementById('cancel-deposit-btn-2').addEventListener('click', function() {
+                depositModal.style.display = 'none';
+            });
+        }
+
+        // Клик по кнопкам с суммами
+        amountButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                amountButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                depositAmountInput.value = this.dataset.amount;
+            });
+        });
+
+        // Генерация QR кода для СБП
+        if (confirmDepositBtn) {
+            confirmDepositBtn.addEventListener('click', async function() {
+                const amount = parseFloat(depositAmountInput.value);
+                
+                if (!amount || amount < 10) {
+                    showAlert(walletAlertError, 'Минимальная сумма пополнения - 10 рублей');
+                    return;
+                }
+
+                confirmDepositBtn.disabled = true;
+                confirmDepositBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Создание платежа...';
+
+                try {
+                    const response = await fetch('/api/wallet/deposit', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            amount: amount,
+                            paymentMethod: 'sbp'
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Показываем QR код
+                        if (data.payment && data.payment.qrCodeUrl) {
+                            const qrImg = document.getElementById('deposit-qr-code');
+                            qrImg.src = 'data:image/png;base64,' + data.payment.qrCodeUrl;
+                            document.getElementById('deposit-step-1').style.display = 'none';
+                            document.getElementById('deposit-step-2').style.display = 'block';
+                            
+                            // Запускаем автоматическую проверку
+                            window.currentPaymentId = data.payment.id;
+                            window.paymentCheckInterval = setInterval(checkPaymentStatus, 3000);
+                        } else {
+                            // Демо-режим
+                            showAlert(walletAlertSuccess, data.message);
+                            walletBalance.textContent = parseFloat(data.wallet.balance).toFixed(2);
+                            depositModal.style.display = 'none';
+                        }
+                    } else {
+                        showAlert(walletAlertError, data.message || 'Ошибка при создании платежа');
+                    }
+                } catch (error) {
+                    console.error('Ошибка:', error);
+                    showAlert(walletAlertError, 'Ошибка сети или сервера');
+                } finally {
+                    confirmDepositBtn.disabled = false;
+                    confirmDepositBtn.innerHTML = '<i class="fas fa-qrcode me-1"></i> Сгенерировать QR';
+                }
+            });
+        }
+
+        // Проверка статуса платежа
+        function checkPaymentStatus() {
+            if (!window.currentPaymentId) return;
+            
+            fetch(`/api/wallet/payment/${window.currentPaymentId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.payment) {
+                        const statusEl = document.getElementById('payment-status');
+                        if (data.payment.status === 'succeeded') {
+                            statusEl.textContent = 'Платеж успешно оплачен!';
+                            statusEl.style.color = '#00b09b';
+                            clearInterval(window.paymentCheckInterval);
+                            loadWalletInfo();
+                            setTimeout(() => {
+                                depositModal.style.display = 'none';
+                            }, 2000);
+                        } else {
+                            statusEl.textContent = 'Ожидание оплаты...';
+                        }
+                    }
+                })
+                .catch(err => console.error('Check payment error:', err));
+        }
+
+        // Кнопка проверки статуса
+        if (document.getElementById('check-payment-btn')) {
+            document.getElementById('check-payment-btn').addEventListener('click', checkPaymentStatus);
+        }
+
+        // Оформление подписки
+        if (subscribeBtn) {
+            subscribeBtn.addEventListener('click', async function() {
+                if (subscribeBtn.disabled) return;
+
+                if (!confirm('Вы уверены, что хотите оформить подписку Premium за 150 рублей в месяц?')) {
+                    return;
+                }
+
+                subscribeBtn.disabled = true;
+                subscribeBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Оформление...';
+
+                try {
+                    const response = await fetch('/api/subscribe', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            plan: 'premium',
+                            autoRenew: true
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showAlert(walletAlertSuccess, 'Подписка успешно оформлена!');
+                        walletBalance.textContent = parseFloat(data.wallet.balance).toFixed(2);
+                        await loadSubscriptionInfo();
+                        
+                        // Перезагружаем страницу через 2 секунды
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
+                    } else {
+                        showAlert(walletAlertError, data.message || 'Ошибка при оформлении подписки');
+                    }
+                } catch (error) {
+                    console.error('Ошибка:', error);
+                    showAlert(walletAlertError, 'Ошибка сети или сервера');
+                } finally {
+                    if (!subscribeBtn.disabled) {
+                        subscribeBtn.disabled = false;
+                        subscribeBtn.innerHTML = '<i class="fas fa-crown me-1"></i> Оформить подписку (150₽/мес)';
+                    }
+                }
+            });
+        }
+
+        // Закрытие модального окна при клике вне его
+        depositModal.addEventListener('click', function(e) {
+            if (e.target === depositModal) {
+                depositModal.style.display = 'none';
+            }
+        });
+    });
+
+    // Изменяем параметры DotField для устранения розового свечения
+    (function() {
+        const dotField = document.getElementById('global-dot-field');
+        if (dotField) {
+            dotField.dataset.gradientFrom = 'rgba(74, 111, 255, 0.2)';
+            dotField.dataset.gradientTo = 'rgba(74, 111, 255, 0.1)';
+            dotField.dataset.glowColor = '#0a0a1a';
+            // Если DotField уже инициализирован, можно попробовать обновить его
+            if (window.dotFieldInstance) {
+                window.dotFieldInstance.updateOptions({
+                    gradientFrom: 'rgba(74, 111, 255, 0.2)',
+                    gradientTo: 'rgba(74, 111, 255, 0.1)',
+                    glowColor: '#0a0a1a'
+                });
+            }
+        }
+    })();
+</script>

@@ -1,0 +1,239 @@
+<style>
+    .start-course-wrap {
+        margin: 1rem 0 1.5rem;
+    }
+
+    .start-course-btn {
+        background: #2563eb;
+        border-color: #2563eb;
+        color: #fff;
+        box-shadow: 0 10px 24px rgba(37, 99, 235, 0.25);
+    }
+
+    .start-course-btn:hover {
+        background: #1d4ed8;
+        border-color: #1d4ed8;
+    }
+
+    .lessons-list.lessons-hidden .lesson-card {
+        display: none;
+    }
+
+    .lessons-list.lessons-revealed .lesson-card {
+        animation: revealLesson 0.55s ease forwards;
+    }
+
+    @keyframes revealLesson {
+        from {
+            opacity: 0;
+            transform: translateY(24px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .moderation-banner {
+        padding: 0.85rem 1.2rem;
+        border-radius: 8px;
+        margin-bottom: 1.2rem;
+        font-size: 0.95rem;
+    }
+    .moderation-banner.pending {
+        background: rgba(234, 179, 8, 0.15);
+        border: 1px solid rgba(234, 179, 8, 0.4);
+        color: #fcd34d;
+    }
+    .moderation-banner.rejected {
+        background: rgba(239, 68, 68, 0.15);
+        border: 1px solid rgba(239, 68, 68, 0.4);
+        color: #fca5a5;
+    }
+</style>
+
+<%
+    const isCreator = user && user.id === course.userId;
+    const isAdmin = user && (user.role === 'admin' || user.role === 'owner');
+    const alwaysReveal = isCreator || isAdmin;
+    const hasProgress = userProgress && userProgress.status !== 'not_started';
+    const showStartButton = !alwaysReveal && !hasProgress;
+    const lessonsClass = (alwaysReveal || hasProgress) ? 'lessons-revealed' : 'lessons-hidden';
+%>
+
+<div class="course-detail">
+    <div class="course-header">
+        <h1><%= course.title %></h1>
+        <div class="course-meta">
+            <span class="course-genre"><%= course.genre %></span>
+            <span><i class="far fa-clock"></i> <%= course.totalTime %> минут</span>
+            <span><i class="far fa-calendar"></i> <%= new Date(course.createdAt).toLocaleDateString() %></span>
+            <span class="course-status">
+                <i class="fas fa-flag"></i>
+                <% if (course.status === 'active') { %>
+                    <span class="badge badge-primary">Активный</span>
+                <% } else if (course.status === 'completed') { %>
+                    <span class="badge badge-success">Завершен</span>
+                <% } else if (course.status === 'archived') { %>
+                    <span class="badge badge-secondary">Архивирован</span>
+                <% } %>
+            </span>
+        </div>
+
+        <% if (isCreator) { %>
+            <% if (course.moderationStatus === 'pending') { %>
+                <div class="moderation-banner pending">
+                    <i class="fas fa-hourglass-half"></i> Ваш курс ожидает проверки модератором. После одобрения он появится в каталоге.
+                </div>
+            <% } else if (course.moderationStatus === 'rejected') { %>
+                <div class="moderation-banner rejected">
+                    <i class="fas fa-times-circle"></i> Ваш курс был отклонён модератором.
+                    <% if (course.moderationComment) { %>
+                        <br><strong>Причина:</strong> <%= course.moderationComment %>
+                    <% } %>
+                </div>
+            <% } %>
+        <% } %>
+
+        <% if (isCreator) { %>
+            <div class="course-actions">
+                <form method="POST" action="/courses/<%= course.id %>/delete" style="display:inline; margin-right: 10px;">
+                    <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('Удалить курс?')">Удалить курс</button>
+                </form>
+                <% if (course.status !== 'completed') { %>
+                    <form method="POST" action="/courses/<%= course.id %>/finish" style="display:inline;">
+                        <button type="submit" class="btn btn-warning btn-small" onclick="return confirm('Завершить курс? После завершения новые уроки добавляться не будут.')">
+                            <i class="fas fa-flag-checkered"></i> Завершить курс
+                        </button>
+                    </form>
+                <% } %>
+            </div>
+        <% } %>
+    </div>
+
+    <div class="course-description">
+        <h3>Описание</h3>
+        <p><%= course.description %></p>
+    </div>
+
+    <div class="lessons-section">
+        <h3>Уроки курса</h3>
+        <% if (course.Lessons && course.Lessons.length > 0) { %>
+            <% if (showStartButton) { %>
+                <div class="start-course-wrap">
+                    <form method="POST" action="/courses/<%= course.id %>/start">
+                        <button type="submit" class="btn start-course-btn">Начать курс</button>
+                    </form>
+                </div>
+            <% } %>
+            <div class="lessons-list <%= lessonsClass %>" id="course-lessons-list">
+                <% course.Lessons.forEach((lesson, index) => { %>
+                    <div class="lesson-card">
+                        <div class="lesson-order">Урок <%= lesson.order %></div>
+                        <div class="lesson-content">
+                            <h4><%= lesson.title %></h4>
+                            <% if (lesson.videoUrl) { %>
+                                <% if (lesson.videoUrl.startsWith('/uploads/videos/') || (lesson.filePath && lesson.filePath.startsWith('/uploads/videos/'))) { %>
+                                    <% const videoSrc = lesson.videoUrl.startsWith('/uploads/videos/') ? lesson.videoUrl : lesson.filePath; %>
+                                    <div class="video-player">
+                                        <video controls width="100%" preload="metadata">
+                                            <source src="<%= videoSrc %>" type="video/mp4">
+                                            Ваш браузер не поддерживает видео тег.
+                                        </video>
+                                        <p><i class="fas fa-video"></i> <a href="<%= videoSrc %>" target="_blank">Скачать видео</a></p>
+                                    </div>
+                                <% } else { %>
+                                    <p><i class="fas fa-video"></i> <a href="<%= lesson.videoUrl %>" target="_blank">Смотреть видео (внешняя ссылка)</a></p>
+                                <% } %>
+                            <% } else { %>
+                                <p><i class="fas fa-video-slash"></i> Видео не прикреплено</p>
+                            <% } %>
+                            <span class="lesson-duration"><i class="far fa-clock"></i> <%= lesson.duration %> мин.</span>
+
+                            <% if (user && !isCreator && !isAdmin && course.status === 'active' && (!userProgress || userProgress.status !== 'completed')) { %>
+                                <div class="lesson-progress mt-2" data-lesson-id="<%= lesson.id %>">
+                                    <%
+                                        let isCompleted = false;
+                                        if (userProgress && userProgress.completedLessons) {
+                                            isCompleted = userProgress.completedLessons.includes(lesson.id);
+                                        }
+                                    %>
+                                    <div class="progress-bar-small" style="width: 100px; height: 8px; background-color: #333; border-radius: 4px; display: inline-block; vertical-align: middle; margin-right: 10px;">
+                                        <div class="progress-fill-small" data-width="<%= isCompleted ? '100%' : '0%' %>" style="width: 0; height: 100%; background-color: #4CAF50; border-radius: 4px; transition: width 0.5s ease;"></div>
+                                    </div>
+                                    <button class="btn btn-sm <%= isCompleted ? 'btn-success' : 'btn-outline-success' %> lesson-complete-btn" data-lesson-id="<%= lesson.id %>" data-course-id="<%= course.id %>" <%= isCompleted ? 'disabled' : '' %>>
+                                        <i class="fas fa-check"></i> <%= isCompleted ? 'Пройден' : 'Урок пройден' %>
+                                    </button>
+                                </div>
+                            <% } %>
+
+                            <% if (user && (isCreator || isAdmin)) { %>
+                                <div class="lesson-actions mt-2">
+                                    <a href="/courses/<%= course.id %>/lessons/<%= lesson.id %>/edit" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i> Редактировать
+                                    </a>
+                                    <form method="POST" action="/courses/<%= course.id %>/lessons/<%= lesson.id %>/delete" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Удалить урок «<%= lesson.title %>»?')">
+                                            <i class="fas fa-trash"></i> Удалить
+                                        </button>
+                                    </form>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        <% } else { %>
+            <p class="no-lessons">В этом курсе пока нет уроков.</p>
+        <% } %>
+
+        <% if (user && (isCreator || isAdmin)) { %>
+            <div class="add-lesson">
+                <h4>Добавить урок</h4>
+                <% if (course.status === 'completed') { %>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> Курс завершен. Новые уроки добавляться не будут.
+                    </div>
+                <% } else { %>
+                    <form method="POST" action="/courses/<%= course.id %>/lessons" class="lesson-form" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="title">Название урока</label>
+                            <input type="text" id="title" name="title" required placeholder="Введение в тему">
+                        </div>
+                        <div class="form-group">
+                            <label for="videoFile">Видеофайл (mp4, webm, avi, mov, до 500 MB)</label>
+                            <input type="file" id="videoFile" name="videoFile" accept="video/*">
+                            <small class="form-text" style="color: white;">Оставьте пустым, если видео не требуется</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="videoUrl">Или ссылка на видео (YouTube, Vimeo)</label>
+                            <input type="url" id="videoUrl" name="videoUrl" placeholder="https://youtube.com/watch?v=...">
+                            <small class="form-text" style="color: white;">Если загружаете файл, ссылка не нужна</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="duration">Длительность (минуты)</label>
+                            <input type="number" id="duration" name="duration" min="1" required placeholder="15">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Добавить урок</button>
+                    </form>
+                <% } %>
+            </div>
+        <% } %>
+    </div>
+
+    <div class="back-link">
+        <a href="/courses" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Вернуться к каталогу</a>
+    </div>
+
+    <% if (user && !isCreator && !isAdmin) { %>
+        <script src="/js/lesson-progress.js"></script>
+    <% } %>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.progress-fill-small').forEach(function(el) {
+                el.style.width = el.dataset.width || '0%';
+            });
+        });
+    </script>
+</div>

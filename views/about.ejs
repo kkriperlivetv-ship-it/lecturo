@@ -1,0 +1,447 @@
+<div class="about-page">
+    <h1>О проекте Lecturo</h1>
+    <p class="about-subtitle">Платформа для создания и изучения онлайн-курсов, где каждый может делиться знаниями.</p>
+
+    <div class="about-content">
+        <div class="about-section">
+            <h2><i class="fas fa-rocket"></i> Наша миссия</h2>
+            <p>Мы стремимся сделать образование доступным и интерактивным. Lecturo позволяет любому пользователю создавать собственные курсы, добавлять видеоуроки и делиться ими с сообществом.</p>
+        </div>
+
+        <div class="about-section">
+            <h2><i class="fas fa-users"></i> Для кого это?</h2>
+            <ul>
+                <li><strong>Преподаватели и эксперты</strong> — создавайте курсы и монетизируйте свои знания.</li>
+                <li><strong>Студенты</strong> — находите курсы по интересующим темам и учитесь в удобном темпе.</li>
+                <li><strong>Компании</strong> — организуйте корпоративное обучение с помощью внутренних курсов.</li>
+                <li><strong>Энтузиасты</strong> — делитесь своим хобби и находите единомышленников.</li>
+            </ul>
+        </div>
+
+        <div class="about-section">
+            <h2><i class="fas fa-cogs"></i> Как это работает?</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Регистрация</h3>
+                    <p>Создайте аккаунт за минуту.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Создание курса</h3>
+                    <p>Заполните информацию о курсе, укажите жанр и описание.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Добавление уроков</h3>
+                    <p>Загружайте видео по ссылкам (YouTube, Vimeo) и структурируйте материал.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Публикация</h3>
+                    <p>Курс появляется в каталоге и доступен для изучения.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="about-section">
+            <h2><i class="fas fa-gavel"></i> Правила</h2>
+            <p class="rules-intro">Ознакомьтесь с правилами использования платформы, правами и обязанностями авторов и студентов.</p>
+            
+            <button class="btn btn-outline btn-large rules-toggle" id="rulesToggle" onclick="toggleRules()">
+                <i class="fas fa-chevron-down"></i> Показать правила
+            </button>
+            
+            <div class="rules-container" id="rulesContainer">
+                <div class="rules-list">
+                    <div class="rule-item">
+                        <h3><strong>1. Права на контент</strong></h3>
+                        <p>Создавая курс, вы подтверждаете, что являетесь автором всех материалов либо имеете законное право на их использование. Запрещено копировать чужие курсы, распространять чужие лекции или продавать готовые решения без разрешения правообладателя.</p>
+                    </div>
+                    <div class="rule-item">
+                        <h3><strong>2. Запрещенный контент</strong></h3>
+                        <p>К публикации не допускаются курсы, содержащие: призывы к насилию, разжигание ненависти, порнографию, пропаганду наркотиков, мошеннические схемы, вредоносный код, а также информацию, нарушающую законодательство РФ / страны пользователя.</p>
+                    </div>
+                    <div class="rule-item">
+                        <h3><strong>3. Ответственность автора</strong></h3>
+                        <p>Автор курса несет полную ответственность за достоверность, актуальность и качество предоставляемой информации, видеоуроков, домашних заданий и дополнительных материалов. Платформа не проверяет курсы на методическую точность, но оставляет за собой право удалить любой курс без объяснения причин.</p>
+                    </div>
+                    <div class="rule-item">
+                        <h3><strong>4. Правила продаж и возврата</strong></h3>
+                        <p>Студент вправе запросить возврат средств в течение 14 дней при условии, что пройдено не более 20% материалов курса. Автор обязан предоставить чек или договор по запросу студента. Возврат осуществляется по правилам оферты, размещенной на сайте.</p>
+                    </div>
+                    <div class="rule-item">
+                        <h3><strong>5. Общение в комментариях / чате</strong></h3>
+                        <p>Запрещены оскорбления участников, спам, реклама сторонних сервисов, нецензурная лексика, флуд и разжигание конфликтов вне темы курса. Автор курса может удалять любые сообщения в своих модулях по своему усмотрению.</p>
+                    </div>
+                    <div class="rule-item">
+                        <h3><strong>6. Отзывы и рейтинг</strong></h3>
+                        <p>Оставлять отзывы могут только студенты, оплатившие курс. Запрещена накрутка собственного рейтинга, заказ ложных положительных отзывов, а также умышленное занижение чужих курсов с помощью фейковых аккаунтов. Нарушение влечет блокировку всех курсов автора.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="about-section">
+            <h2><i class="fas fa-question-circle"></i> Частые вопросы</h2>
+            <div class="faq">
+                <div class="faq-item">
+                    <h4>Бесплатно ли использование?</h4>
+                    <p>Да, создание и изучение курсов полностью бесплатны.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Можно ли загружать свои видео файлы?</h4>
+                    <p>Пока поддерживаются только ссылки на внешние видеохостинги (YouTube, Vimeo и др.).</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Как связаться с поддержкой?</h4>
+                    <p>Напишите на support@courseplatform.ru или используйте форму обратной связи.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="about-section">
+        <h2><i class="fas fa-crown"></i> Premium подписка</h2>
+        <p>Откройте дополнительные возможности платформы с подпиской Lecturo Premium всего за 150 рублей в месяц.</p>
+        
+        <div class="premium-features">
+            <div class="premium-feature">
+                <i class="fas fa-search"></i>
+                <h3>Продвинутый поиск по видео</h3>
+                <p>Ищите слова, сказанные преподавателем внутри любого ролика. Транскрибация всех видео позволяет находить нужные моменты за секунды.</p>
+            </div>
+            <div class="premium-feature">
+                <i class="fas fa-video"></i>
+                <h3>Архив вебинаров и разборов</h3>
+                <p>Доступ к 400+ часам записей вебинаров, мастер-классов и разборов за все время существования платформы.</p>
+            </div>
+            <div class="premium-feature">
+                <i class="fas fa-file-pdf"></i>
+                <h3>Шаблоны и чек-листы</h3>
+                <p>PDF материалы к каждому модулю курса: готовые шаблоны, чек-листы, методички для эффективного обучения.</p>
+            </div>
+        </div>
+
+        <div class="premium-cta">
+            <p><strong>Всего 150₽/месяц</strong> • Отмена в любой момент • Первые 7 дней бесплатно</p>
+            <div class="premium-buttons">
+                <a href="/auth/profile" class="btn btn-primary btn-large">
+                    <i class="fas fa-crown"></i> Оформить подписку
+                </a>
+                <a href="/auth/login" class="btn btn-outline btn-large">
+                    <i class="fas fa-info-circle"></i> Подробнее
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="about-cta">
+        <h2>Готовы начать?</h2>
+        <p>Присоединяйтесь к нашему сообществу уже сегодня!</p>
+        <div class="cta-buttons">
+            <a href="/auth/register" class="btn btn-primary btn-large">Зарегистрироваться</a>
+            <a href="/courses" class="btn btn-outline btn-large">Посмотреть курсы</a>
+        </div>
+    </div>
+</div>
+
+<style>
+.about-page {
+    padding: 2rem 0;
+}
+.about-subtitle {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-bottom: 3rem;
+    text-align: center;
+}
+.about-section {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+.about-section h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    color: var(--accent);
+}
+.steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+.step {
+    text-align: center;
+    padding: 1.5rem;
+    background-color: var(--bg-primary);
+    border-radius: var(--radius);
+}
+.step-number {
+    background-color: var(--accent);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin: 0 auto 1rem;
+}
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+.stat {
+    text-align: center;
+    padding: 1.5rem;
+    background-color: var(--bg-primary);
+    border-radius: var(--radius);
+}
+.stat-number {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--accent);
+}
+.stat-label {
+    color: var(--text-secondary);
+}
+.faq-item {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+.faq-item:last-child {
+    border-bottom: none;
+}
+.about-cta {
+    text-align: center;
+    padding: 3rem;
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius);
+    margin-top: 3rem;
+}
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+/* Стили для блока правил */
+.rules-intro {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+}
+.rules-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+}
+.rules-toggle i {
+    transition: transform 0.3s ease;
+}
+.rules-toggle.expanded i {
+    transform: rotate(180deg);
+}
+.rules-container {
+    overflow: hidden;
+    transition: max-height 0.5s ease, opacity 0.3s ease;
+    max-height: 0;
+    opacity: 0;
+}
+.rules-container.expanded {
+    max-height: 2000px;
+    opacity: 1;
+}
+.rules-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.rule-item {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.rule-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+.rule-item h3 {
+    color: var(--accent);
+    margin-bottom: 0.8rem;
+    font-size: 1.2rem;
+}
+.rule-item p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+.hidden {
+    display: none;
+}
+@media (max-width: 768px) {
+    .steps, .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+/* Стили для Premium подписки */
+.premium-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin: 2.5rem 0;
+}
+.premium-feature {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 2rem;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.premium-feature:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    border-color: var(--accent);
+}
+.premium-feature i {
+    font-size: 3rem;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, var(--accent), #6a8cff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+}
+.premium-feature h3 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+.premium-feature p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    flex-grow: 1;
+}
+.premium-cta {
+    background: linear-gradient(135deg, rgba(74, 111, 255, 0.1), rgba(106, 140, 255, 0.05));
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 2.5rem;
+    text-align: center;
+    margin-top: 2rem;
+}
+.premium-cta p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    color: var(--text-primary);
+}
+.premium-cta strong {
+    color: var(--accent);
+}
+.premium-buttons {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.premium-buttons .btn-large {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+}
+@media (max-width: 768px) {
+    .premium-features {
+        grid-template-columns: 1fr;
+    }
+    .premium-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+/* Стили для списка возможностей Premium */
+.premium-list {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0;
+}
+.premium-list li {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.premium-list li:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border-color: var(--accent);
+}
+.premium-list strong {
+    color: var(--accent);
+    font-size: 1.1rem;
+}
+.premium-list li:before {
+    content: "✓";
+    color: var(--accent);
+    font-weight: bold;
+    margin-right: 0.75rem;
+}
+</style>
+
+<script>
+    function toggleRules() {
+        console.log('toggleRules called');
+        const toggleButton = document.getElementById('rulesToggle');
+        const rulesContainer = document.getElementById('rulesContainer');
+        if (!toggleButton || !rulesContainer) return;
+        
+        const isExpanded = rulesContainer.classList.contains('expanded');
+        console.log('isExpanded:', isExpanded);
+        
+        if (isExpanded) {
+            rulesContainer.classList.remove('expanded');
+            toggleButton.classList.remove('expanded');
+            toggleButton.innerHTML = '<i class="fas fa-chevron-down"></i> Показать правила';
+        } else {
+            rulesContainer.classList.add('expanded');
+            toggleButton.classList.add('expanded');
+            toggleButton.innerHTML = '<i class="fas fa-chevron-up"></i> Скрыть правила';
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOMContentLoaded for rules triggered');
+        const toggleButton = document.getElementById('rulesToggle');
+        if (toggleButton) {
+            toggleButton.onclick = toggleRules;
+            console.log('onclick assigned');
+        }
+    });
+</script>

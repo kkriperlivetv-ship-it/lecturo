@@ -1,0 +1,78 @@
+<div class="course-detail">
+    <div class="course-header">
+        <h1>Редактировать урок</h1>
+        <div class="course-meta">
+            <span class="course-genre"><%= course.genre %></span>
+            <span><i class="far fa-clock"></i> <%= course.totalTime %> минут</span>
+        </div>
+    </div>
+
+    <div class="edit-lesson-form">
+        <form method="POST" action="/courses/<%= course.id %>/lessons/<%= lesson.id %>/edit" class="lesson-form" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="title">Название урока</label>
+                <input type="text" id="title" name="title" value="<%= lesson.title %>" required placeholder="Введение в тему">
+            </div>
+            
+            <div class="form-group">
+                <label for="order">Порядковый номер</label>
+                <input type="number" id="order" name="order" value="<%= lesson.order %>" min="1" required>
+                <small class="form-text" style="color: white;">Определяет порядок урока в курсе</small>
+            </div>
+
+            <div class="form-group">
+                <label for="videoFile">Новый видеофайл (mp4, webm, avi, mov, до 500 MB)</label>
+                <input type="file" id="videoFile" name="videoFile" accept="video/*">
+                <small class="form-text" style="color: white;">Оставьте пустым, чтобы оставить текущее видео</small>
+                <% if (lesson.filePath) { %>
+                    <p class="current-file">
+                        <i class="fas fa-video"></i> Текущий файл: 
+                        <a href="<%= lesson.filePath %>" target="_blank"><%= lesson.filePath.split('/').pop() %></a>
+                    </p>
+                <% } %>
+            </div>
+            
+            <div class="form-group">
+                <label for="videoUrl">Или ссылка на видео (YouTube, Vimeo)</label>
+                <input type="url" id="videoUrl" name="videoUrl" value="<%= lesson.videoUrl && !lesson.videoUrl.startsWith('/uploads/videos/') ? lesson.videoUrl : '' %>" placeholder="https://youtube.com/watch?v=...">
+                <small class="form-text" style="color: white;">Если загружаете файл, ссылка не нужна</small>
+                <% if (lesson.videoUrl && lesson.videoUrl.startsWith('/uploads/videos/')) { %>
+                    <p class="current-file">
+                        <i class="fas fa-video"></i> Текущее видео: загруженный файл
+                    </p>
+                <% } else if (lesson.videoUrl) { %>
+                    <p class="current-file">
+                        <i class="fas fa-video"></i> Текущая ссылка: 
+                        <a href="<%= lesson.videoUrl %>" target="_blank"><%= lesson.videoUrl %></a>
+                    </p>
+                <% } %>
+            </div>
+
+            <div class="form-group">
+                <label for="duration">Длительность (минуты)</label>
+                <input type="number" id="duration" name="duration" value="<%= lesson.duration %>" min="1" required placeholder="15">
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                <a href="/courses/<%= course.id %>" class="btn btn-outline">Отмена</a>
+                <button type="button" class="btn btn-danger" onclick="confirmDelete()">Удалить урок</button>
+            </div>
+        </form>
+
+        <form id="deleteForm" method="POST" action="/courses/<%= course.id %>/lessons/<%= lesson.id %>/delete" style="display: none;">
+        </form>
+    </div>
+
+    <div class="back-link">
+        <a href="/courses/<%= course.id %>" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Вернуться к курсу</a>
+    </div>
+</div>
+
+<script>
+function confirmDelete() {
+    if (confirm('Вы уверены, что хотите удалить этот урок? Это действие нельзя отменить.')) {
+        document.getElementById('deleteForm').submit();
+    }
+}
+</script>

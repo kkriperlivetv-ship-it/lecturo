@@ -1,0 +1,56 @@
+<div class="catalog-header">
+    <h1>Каталог курсов</h1>
+    <p>Изучайте курсы, созданные сообществом, или создайте свой собственный.</p>
+    <% if (user) { %>
+        <a href="/courses/create" class="btn btn-primary">+ Создать курс</a>
+    <% } %>
+</div>
+
+<div class="catalog-controls">
+    <div class="search-box">
+        <input type="text" placeholder="Поиск по названию или жанру...">
+        <button class="btn btn-small"><i class="fas fa-search"></i></button>
+    </div>
+    <div class="filter">
+        <select>
+            <option>Все жанры</option>
+            <option>Программирование</option>
+            <option>Дизайн</option>
+            <option>Маркетинг</option>
+            <option>Бизнес</option>
+        </select>
+    </div>
+</div>
+
+<% if (courses.length > 0) { %>
+    <div class="courses-grid">
+        <% courses.forEach(course => { %>
+            <div class="course-card">
+                <div class="course-header">
+                    <h3><%= course.title %></h3>
+                    <span class="course-genre"><%= course.genre %></span>
+                </div>
+                <p class="course-description"><%= course.description.substring(0, 150) %>...</p>
+                <div class="course-meta">
+                    <span><i class="far fa-clock"></i> <%= course.totalTime %> мин.</span>
+                    <span><i class="far fa-calendar"></i> <%= new Date(course.createdAt).toLocaleDateString() %></span>
+                </div>
+                <div class="course-footer">
+                    <a href="/courses/<%= course.id %>" class="btn btn-small">Подробнее</a>
+                    <% if (user && user.id === course.userId) { %>
+                        <form method="POST" action="/courses/<%= course.id %>/delete" style="display:inline;">
+                            <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('Удалить курс?')">Удалить</button>
+                        </form>
+                    <% } %>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+<% } else { %>
+    <div class="empty-state">
+        <i class="fas fa-book-open"></i>
+        <h3>Курсы пока не созданы</h3>
+        <p>Будьте первым, кто создаст курс!</p>
+        <a href="/courses/create" class="btn btn-primary">Создать курс</a>
+    </div>
+<% } %>

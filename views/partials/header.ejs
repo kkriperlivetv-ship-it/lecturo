@@ -1,0 +1,106 @@
+<style>
+.premium-drop-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 1rem;
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    text-decoration: none;
+    transition: background 0.12s, color 0.12s;
+}
+.premium-drop-item:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+</style>
+<header class="header">
+    <div class="header-container">
+        <a href="/" class="logo">
+            <i class="fas fa-graduation-cap"></i>
+            <span>Lecturo</span>
+        </a>
+        <nav class="nav">
+            <a href="/" class="nav-link">Главная</a>
+            <a href="/courses" class="nav-link">Каталог курсов</a>
+            <a href="/about" class="nav-link">О проекте</a>
+            
+            <% if (user) { %>
+                <a href="/courses/create" class="nav-link">Создать курс</a>
+                <% if (user.hasActiveSubscription) { %>
+                    <div class="nav-dropdown" style="position:relative;">
+                        <a href="#" class="nav-link premium-nav-link" onclick="togglePremiumMenu(event)">
+                            <i class="fas fa-crown me-1" style="color:#a855f7;"></i>Premium
+                            <i class="fas fa-chevron-down ms-1" style="font-size:.65rem;"></i>
+                        </a>
+                        <div id="premiumDropdown" style="display:none;position:absolute;top:calc(100% + 8px);left:0;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:10px;min-width:220px;box-shadow:0 8px 24px rgba(0,0,0,0.3);z-index:1000;padding:0.5rem 0;">
+                            <a href="/premium/video-search" class="premium-drop-item">
+                                <i class="fas fa-search" style="width:18px;color:var(--accent);"></i>Поиск по видео
+                            </a>
+                            <a href="/premium/webinars" class="premium-drop-item">
+                                <i class="fas fa-video" style="width:18px;color:var(--accent);"></i>Архив вебинаров
+                            </a>
+                            <a href="/premium/pdfs" class="premium-drop-item">
+                                <i class="fas fa-file-pdf" style="width:18px;color:#ef4444;"></i>Шаблоны и чек-листы
+                            </a>
+                        </div>
+                    </div>
+                <% } %>
+                <% if (user.role === 'admin' || user.role === 'owner') { %>
+                    <a href="/moderation" class="nav-link" style="position:relative;">
+                        <i class="fas fa-check-circle me-1"></i>Модерация
+                        <span id="moderationBadge" class="notification-badge" style="display:none;">0</span>
+                    </a>
+                    <a href="/admin" class="nav-link admin-link">
+                        <i class="fas fa-crown me-1"></i>Админ-панель
+                    </a>
+                <% } %>
+<div class="user-menu">
+    <a href="/auth/profile" class="username-link">
+        <span class="username <%= user.hasActiveSubscription ? 'premium-user' : '' %>">
+            <%= user.username %>
+            <% if (user.hasActiveSubscription) { %>
+                <span class="premium-badge">
+                    <i class="fas fa-crown"></i>
+                </span>
+            <% } %>
+            <% if (user.role === 'admin' || user.role === 'owner') { %>
+                <span class="badge <%= user.role === 'owner' ? 'bg-purple' : 'bg-danger' %> ms-1">
+                    <%= user.role === 'owner' ? 'Owner' : 'Admin' %>
+                </span>
+            <% } %>
+        </span>
+    </a>
+</div>
+                <!-- Help Button -->
+                <div class="help-button-container">
+                    <a href="/help" id="helpButton" class="btn btn-outline">
+                        Помощь
+                        <span id="helpNotification" class="notification-badge" style="display: none;">0</span>
+                    </a>
+                </div>
+            <% } else { %>
+                <a href="/auth/login" class="btn btn-outline">Войти</a>
+                <a href="/auth/register" class="btn btn-primary">Регистрация</a>
+                <!-- Help Button (visible even for guests) -->
+                <div class="help-button-container">
+                    <a href="/help" id="helpButton" class="btn btn-outline">
+                        Помощь
+                        <span id="helpNotification" class="notification-badge" style="display: none;">0</span>
+                    </a>
+                </div>
+            <% } %>
+        </nav>
+    </div>
+</header>
+<script>
+function togglePremiumMenu(e) {
+    e.preventDefault();
+    const dd = document.getElementById('premiumDropdown');
+    if (!dd) return;
+    const isOpen = dd.style.display === 'block';
+    dd.style.display = isOpen ? 'none' : 'block';
+}
+document.addEventListener('click', function(e) {
+    const dd = document.getElementById('premiumDropdown');
+    if (!dd) return;
+    if (!e.target.closest('.nav-dropdown')) dd.style.display = 'none';
+});
+</script>

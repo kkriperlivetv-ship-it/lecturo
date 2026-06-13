@@ -1,0 +1,276 @@
+<div class="subscription-promo">
+    <div class="promo-header">
+        <h2><i class="fas fa-crown"></i> Premium подписка</h2>
+        <div class="price-tag">150₽ <span class="period">/месяц</span></div>
+    </div>
+    
+    <div class="promo-features">
+        <div class="feature">
+            <div class="feature-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="feature-content">
+                <h4>Продвинутый поиск по видео</h4>
+                <p>Ищет слово, которое сказал преподаватель внутри любого ролика. Находите нужные моменты за секунды.</p>
+            </div>
+        </div>
+        
+        <div class="feature">
+            <div class="feature-icon">
+                <i class="fas fa-video"></i>
+            </div>
+            <div class="feature-content">
+                <h4>Доступ к архиву вебинаров</h4>
+                <p>400+ часов записей вебинаров и разборов за все время. Учитесь у лучших в любое время.</p>
+            </div>
+        </div>
+        
+        <div class="feature">
+            <div class="feature-icon">
+                <i class="fas fa-file-pdf"></i>
+            </div>
+            <div class="feature-content">
+                <h4>Шаблоны и чек-листы</h4>
+                <p>PDF материалы к каждому модулю курса. Готовые инструменты для эффективного обучения.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="promo-cta">
+        <% if (user && user.hasActiveSubscription) { %>
+            <div class="already-subscribed">
+                <i class="fas fa-check-circle"></i>
+                <span>У вас активна Premium подписка</span>
+                <a href="/auth/profile" class="btn-manage">Управлять</a>
+            </div>
+        <% } else { %>
+            <button class="btn-subscribe-promo" id="subscribe-promo-btn">
+                <i class="fas fa-crown"></i> Оформить подписку
+            </button>
+            <p class="cta-note">Первый месяц можно отменить в любой момент</p>
+        <% } %>
+    </div>
+</div>
+
+<style>
+    .subscription-promo {
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+        border-radius: 20px;
+        padding: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        margin: 2rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .subscription-promo::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(157, 78, 221, 0.1) 0%, transparent 70%);
+        z-index: 0;
+    }
+    
+    .promo-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .promo-header h2 {
+        color: white;
+        font-size: 1.8rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .promo-header h2 i {
+        color: #FFD166;
+    }
+    
+    .price-tag {
+        background: linear-gradient(135deg, #9D4EDD, #4A6FFF);
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: 50px;
+        font-size: 1.8rem;
+        font-weight: bold;
+        display: flex;
+        align-items: baseline;
+    }
+    
+    .price-tag .period {
+        font-size: 1rem;
+        margin-left: 0.25rem;
+        opacity: 0.8;
+    }
+    
+    .promo-features {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .feature {
+        display: flex;
+        gap: 1.5rem;
+        align-items: flex-start;
+    }
+    
+    .feature-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(74, 111, 255, 0.1);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .feature-icon i {
+        font-size: 1.5rem;
+        color: #4A6FFF;
+    }
+    
+    .feature-content h4 {
+        color: white;
+        margin: 0 0 0.5rem 0;
+        font-size: 1.2rem;
+    }
+    
+    .feature-content p {
+        color: #aaa;
+        margin: 0;
+        line-height: 1.5;
+    }
+    
+    .promo-cta {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .btn-subscribe-promo {
+        width: 100%;
+        background: linear-gradient(135deg, #9D4EDD, #4A6FFF);
+        color: white;
+        border: none;
+        padding: 1.25rem;
+        border-radius: 15px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+    
+    .btn-subscribe-promo:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(157, 78, 221, 0.3);
+    }
+    
+    .btn-subscribe-promo:active {
+        transform: translateY(-1px);
+    }
+    
+    .cta-note {
+        text-align: center;
+        color: #aaa;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .already-subscribed {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        background: rgba(0, 176, 155, 0.1);
+        border: 1px solid rgba(0, 176, 155, 0.2);
+        border-radius: 15px;
+        padding: 1.25rem;
+        color: #00b09b;
+    }
+    
+    .already-subscribed i {
+        font-size: 1.5rem;
+    }
+    
+    .already-subscribed span {
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+    
+    .btn-manage {
+        margin-left: auto;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: background 0.2s;
+    }
+    
+    .btn-manage:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+    }
+    
+    @media (max-width: 768px) {
+        .promo-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .price-tag {
+            align-self: flex-start;
+        }
+        
+        .feature {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .already-subscribed {
+            flex-direction: column;
+            text-align: center;
+            gap: 0.75rem;
+        }
+        
+        .btn-manage {
+            margin-left: 0;
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const subscribePromoBtn = document.getElementById('subscribe-promo-btn');
+        
+        if (subscribePromoBtn) {
+            subscribePromoBtn.addEventListener('click', function() {
+                // Перенаправляем на страницу профиля для оформления подписки
+                window.location.href = '/auth/profile#subscription';
+            });
+        }
+    });
+</script>

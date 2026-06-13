@@ -1,0 +1,71 @@
+<div class="auth-container">
+    <div class="auth-card">
+        <h2 class="auth-title">Регистрация</h2>
+        <% if (error) { %>
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i> <%= error %>
+            </div>
+        <% } %>
+        <form method="POST" action="/auth/register" class="auth-form" id="registerForm">
+            <div class="form-group">
+                <label for="username">Имя пользователя</label>
+                <input type="text" id="username" name="username" required placeholder="Введите имя">
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required placeholder="example@mail.ru">
+            </div>
+            <div class="form-group">
+                <label for="password">Пароль</label>
+                <input type="password" id="password" name="password" required placeholder="Не менее 6 символов">
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Подтверждение пароля</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Повторите пароль">
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Зарегистрироваться</button>
+        </form>
+        <script>
+            document.getElementById('registerForm').addEventListener('submit', function(event) {
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                // Валидация email
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    event.preventDefault();
+                    alert('Введите корректный email адрес');
+                    return false;
+                }
+                
+                // Валидация пароля
+                if (password.length < 6) {
+                    event.preventDefault();
+                    alert('Пароль должен содержать не менее 6 символов');
+                    return false;
+                }
+                
+                // Проверка на английские буквы, хотя бы одну заглавную и одну цифру
+                const passwordRegex = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{6,}$/;
+                if (!passwordRegex.test(password)) {
+                    event.preventDefault();
+                    alert('Пароль должен содержать только английские буквы, хотя бы одну заглавную букву и одну цифру');
+                    return false;
+                }
+                
+                // Проверка совпадения паролей
+                if (password !== confirmPassword) {
+                    event.preventDefault();
+                    alert('Пароли не совпадают');
+                    return false;
+                }
+                
+                return true;
+            });
+        </script>
+        <p class="auth-link">
+            Уже есть аккаунт? <a href="/auth/login">Войти</a>
+        </p>
+    </div>
+</div>

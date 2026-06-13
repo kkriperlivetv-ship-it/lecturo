@@ -1,0 +1,93 @@
+<div class="hero intro-section">
+    <div class="hero-content">
+        <div class="hero-text animate-fade-in">
+            <h1 data-blur-text data-text="Платформа для создания и изучения курсов" data-delay="150" data-animate-by="words" data-direction="top">Платформа для создания и изучения курсов</h1>
+            <p class="hero-subtitle">Объединяем экспертов и студентов в одном месте. Создавайте интерактивные курсы, делитесь знаниями и достигайте целей вместе.</p>
+        </div>
+        
+        <div class="hero-stats animate-slide-up">
+            <div class="stat-item">
+                <div class="stat-number" data-count="<%= stats.courses %>">0</div>
+                <div class="stat-label">Активных курсов</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-count="<%= stats.users %>">0</div>
+                <div class="stat-label">Пользователей</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-count="<%= stats.lessons %>">0</div>
+                <div class="stat-label">Уроков</div>
+            </div>
+        </div>
+
+        <div class="hero-buttons animate-fade-in-delay">
+            <% if (!user) { %>
+                <a href="/auth/register" class="btn btn-primary btn-large">Начать бесплатно</a>
+                <a href="/courses" class="btn btn-outline btn-large">Смотреть каталог</a>
+            <% } else { %>
+                <a href="/courses/create" class="btn btn-primary btn-large">Создать курс</a>
+                <a href="/courses" class="btn btn-outline btn-large">Мои курсы</a>
+            <% } %>
+        </div>
+
+        <div class="hero-cta">
+            <p class="cta-text">Присоединяйтесь к сообществу уже сегодня!</p>
+            <a href="#features" class="scroll-down">
+                <i class="fas fa-chevron-down"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="features">
+    <h2 class="section-title">Почему выбирают нас?</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-laptop-code"></i>
+            </div>
+            <h3>Простое создание</h3>
+            <p>Интуитивный интерфейс для создания курсов с видеоуроками.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <h3>Сообщество</h3>
+            <p>Общайтесь с авторами и студентами, получайте обратную связь.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h3>Прогресс</h3>
+            <p>Отслеживайте свой прогресс обучения и достижения.</p>
+        </div>
+    </div>
+</div>
+
+<div class="recent-courses">
+    <h2 class="section-title">Недавние курсы</h2>
+    <% if (courses.length > 0) { %>
+        <div class="courses-grid">
+            <% courses.forEach(course => { %>
+                <div class="course-card">
+                    <div class="course-header">
+                        <h3><%= course.title %></h3>
+                        <span class="course-genre"><%= course.genre %></span>
+                    </div>
+                    <p class="course-description"><%= course.description.substring(0, 100) %>...</p>
+                    <div class="course-footer">
+                        <span><i class="far fa-clock"></i> <%= course.totalTime %> мин.</span>
+                        <a href="/courses/<%= course.id %>" class="btn btn-small">Подробнее</a>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+        <div class="text-center">
+            <a href="/courses" class="btn btn-outline">Все курсы</a>
+        </div>
+    <% } else { %>
+        <p class="no-courses">Пока нет созданных курсов. Будьте первым!</p>
+    <% } %>
+</div>

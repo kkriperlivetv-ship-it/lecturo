@@ -1,0 +1,211 @@
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="admin-block">
+                <div class="admin-block-header">
+                    <div>
+                        <h1 class="admin-block-title">Логи действий пользователей</h1>
+                        <p class="admin-block-subtitle">Страница <%= currentPage %> из <%= totalPages %></p>
+                    </div>
+                    <a href="/admin" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Назад в админ-панель
+                    </a>
+                </div>
+
+                <% if (messages.success) { %>
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <%= messages.success %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <% } %>
+                
+                <% if (messages.error) { %>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <%= messages.error %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <% } %>
+
+                <div class="admin-block-content">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <% if (hasPreviousPage) { %>
+                                <a href="/admin/logs?page=<%= currentPage - 1 %>" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-chevron-left me-1"></i>Назад
+                                </a>
+                            <% } %>
+                            <% if (hasNextPage) { %>
+                                <a href="/admin/logs?page=<%= currentPage + 1 %>" class="btn btn-outline-primary btn-sm">
+                                    Вперед<i class="fas fa-chevron-right ms-1"></i>
+                                </a>
+                            <% } %>
+                        </div>
+                        <span class="badge bg-primary fs-6">Всего записей: <%= logs.length %></span>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Пользователь</th>
+                                    <th>Действие</th>
+                                    <th>Дата и время</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% logs.forEach(log => { %>
+                                    <tr>
+                                        <td>
+                                            <% if (log.User) { %>
+                                                <div><strong><%= log.User.username %></strong></div>
+                                                <div class="text-muted small"><%= log.User.email %></div>
+                                            <% } else { %>
+                                                <span class="text-muted">Пользователь удален</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <%
+                                                let humanText = '';
+                                                let badgeClass = 'bg-info';
+                                                const action = log.action;
+                                                let detailsObj = {};
+                                                try {
+                                                    detailsObj = JSON.parse(log.details || '{}');
+                                                } catch(e) {
+                                                    detailsObj = {};
+                                                }
+                                                
+                                                // Проверяем, являются ли детали пустыми (только пустые объекты или null/undefined)
+                                                let isDetailsEmpty = false;
+                                                if (Object.keys(detailsObj).length > 0) {
+                                                    isDetailsEmpty = Object.keys(detailsObj).every(key => {
+                                                        const val = detailsObj[key];
+                                                        if (val == null) return true;
+                                                        if (typeof val === 'object' && Object.keys(val).length === 0) return true;
+                                                        if (typeof val === 'string' && val.length === 0) return true;
+                                                        return false;
+                                                    });
+                                                }
+                                                
+                                                if (action.includes('LOGIN')) {
+                                                    humanText = 'Вход в систему';
+                                                    badgeClass = 'bg-success';
+                                                } else if (action.includes('LOGOUT')) {
+                                                    humanText = 'Выход из системы';
+                                                    badgeClass = 'bg-secondary';
+                                                } else if (action.includes('REGISTER')) {
+                                                    humanText = 'Регистрация';
+                                                    badgeClass = 'bg-primary';
+                                                } else if (action.includes('CREATE_COURSE')) {
+                                                    humanText = 'Создал курс';
+                                                    if (detailsObj.title) humanText += ` "${detailsObj.title}"`;
+                                                    badgeClass = 'bg-success';
+                                                } else if (action.includes('UPDATE_COURSE')) {
+                                                    humanText = 'Обновил курс';
+                                                    if (detailsObj.title) humanText += ` "${detailsObj.title}"`;
+                                                    badgeClass = 'bg-warning';
+                                                } else if (action.includes('DELETE_COURSE')) {
+                                                    humanText = 'Удалил курс';
+                                                    if (detailsObj.title) humanText += ` "${detailsObj.title}"`;
+                                                    badgeClass = 'bg-danger';
+                                                } else if (action.includes('CHANGE_USER_ROLE')) {
+                                                    humanText = 'Изменил роль пользователя';
+                                                    if (detailsObj.targetUsername) humanText += ` ${detailsObj.targetUsername}`;
+                                                    if (detailsObj.newRole) humanText += ` на "${detailsObj.newRole}"`;
+                                                    if (detailsObj.changedBy) humanText += ` (изменил ${detailsObj.changedBy})`;
+                                                    badgeClass = 'bg-info';
+                                                } else if (action.includes('USER_LOGIN')) {
+                                                    humanText = 'Вход пользователя';
+                                                    badgeClass = 'bg-success';
+                                                } else if (action.includes('USER_LOGOUT')) {
+                                                    humanText = 'Выход пользователя';
+                                                    badgeClass = 'bg-secondary';
+                                                } else if (action.includes('CREATE')) {
+                                                    humanText = 'Создание';
+                                                    badgeClass = 'bg-success';
+                                                } else if (action.includes('UPDATE')) {
+                                                    humanText = 'Обновление';
+                                                    badgeClass = 'bg-warning';
+                                                } else if (action.includes('DELETE')) {
+                                                    humanText = 'Удаление';
+                                                    badgeClass = 'bg-danger';
+                                                } else if (action.startsWith('GET /courses')) {
+                                                    humanText = 'Просмотр курсов';
+                                                    badgeClass = 'bg-info';
+                                                } else if (action === 'GET /') {
+                                                    humanText = 'Просмотр главной страницы';
+                                                    badgeClass = 'bg-info';
+                                                } else if (action === 'GET /about') {
+                                                    humanText = 'Просмотр страницы "О нас"';
+                                                    badgeClass = 'bg-info';
+                                                } else if (action === 'GET /.well-known/appspecific/com.chrome.devtools.json') {
+                                                    humanText = 'Запрос Chrome DevTools';
+                                                    badgeClass = 'bg-secondary';
+                                                } else if (action === 'POST /courses/create') {
+                                                    humanText = 'Создание курса';
+                                                    badgeClass = 'bg-success';
+                                                } else if (action.startsWith('POST /courses/') && action.endsWith('/lessons')) {
+                                                    humanText = 'Создание урока';
+                                                    badgeClass = 'bg-success';
+                                                } else {
+                                                    humanText = action;
+                                                }
+                                            %>
+                                            <span class="badge <%= badgeClass %> me-2"><%= humanText %></span>
+                                            <% if (log.details && Object.keys(detailsObj).length > 0 && !action.startsWith('GET ') && action !== 'POST /courses/create' && !(action.startsWith('POST /courses/') && action.endsWith('/lessons')) && action !== 'GET /.well-known/appspecific/com.chrome.devtools.json' && !action.includes('CHANGE_USER_ROLE')) { %>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary btn-sm"
+                                                        data-bs-toggle="modal" data-bs-target="#detailsModal<%= log.id %>">
+                                                    <i class="fas fa-info-circle"></i>
+                                                </button>
+                                                
+                                                <!-- Модальное окно с деталями (скрыто по умолчанию) -->
+                                                <div class="modal fade" id="detailsModal<%= log.id %>" tabindex="-1" aria-hidden="true">
+                                                    <div class="modal-dialog modal-lg">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title">Технические детали</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <pre class="log-details"><%= JSON.stringify(detailsObj, null, 2) %></pre>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <div><%= new Date(log.createdAt).toLocaleDateString('ru-RU') %></div>
+                                            <div class="text-muted small"><%= new Date(log.createdAt).toLocaleTimeString('ru-RU') %></div>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <% if (logs.length === 0) { %>
+                        <div class="text-center py-5">
+                            <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                            <h5>Логи не найдены</h5>
+                            <p class="text-muted">В системе пока нет записей логов.</p>
+                        </div>
+                    <% } %>
+                </div>
+
+                <div class="mt-4 pt-4 border-top border-2A2D30">
+                    <div class="alert alert-info mb-0">
+                        <h5 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Информация</h5>
+                        <p class="mb-0">
+                            В этом разделе отображаются все действия пользователей в системе. Логи автоматически создаются при выполнении важных операций,
+                            таких как создание, редактирование и удаление курсов, изменение ролей пользователей и другие административные действия.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

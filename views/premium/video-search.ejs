@@ -1,0 +1,210 @@
+<style>
+    .premium-page-title { margin-bottom: 0.4rem; }
+    .premium-page-sub { color: var(--text-secondary); margin-bottom: 2rem; }
+
+    .premium-lock {
+        text-align: center;
+        padding: 5rem 2rem;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        margin-top: 2rem;
+    }
+    .premium-lock-icon {
+        font-size: 3.5rem;
+        margin-bottom: 1.25rem;
+        background: linear-gradient(135deg, #a855f7, #6366f1);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: block;
+    }
+    .premium-lock h2 { font-size: 1.5rem; margin-bottom: 0.6rem; }
+    .premium-lock p { color: var(--text-secondary); max-width: 480px; margin: 0 auto 1.75rem; }
+
+    .vs-search-wrap {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    .vs-search-row { display: flex; gap: 0.75rem; }
+    .vs-input {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 1rem;
+    }
+    .vs-input:focus { outline: none; border-color: var(--accent); }
+    .vs-input::placeholder { color: var(--text-secondary); }
+
+    .vs-results { margin-top: 1.5rem; }
+    .vs-result-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+    }
+    .vs-result-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 0.5rem; }
+    .vs-result-lesson { font-size: 1rem; font-weight: 600; }
+    .vs-result-course { font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 0.75rem; }
+    .vs-match {
+        background: var(--bg-primary);
+        border-left: 3px solid var(--accent);
+        padding: 0.6rem 0.9rem;
+        border-radius: 0 6px 6px 0;
+        margin-bottom: 0.5rem;
+    }
+    .vs-match-time {
+        font-size: 0.78rem;
+        color: var(--accent);
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+    .vs-match-text { font-size: 0.9rem; color: var(--text-secondary); }
+    .vs-match-text mark {
+        background: rgba(99, 102, 241, 0.3);
+        color: var(--text-primary);
+        border-radius: 2px;
+        padding: 0 2px;
+    }
+    .vs-empty {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-secondary);
+    }
+    .vs-loading {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-secondary);
+        display: none;
+    }
+    .vs-hint { font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.75rem; }
+</style>
+
+<div>
+    <h1 class="premium-page-title"><i class="fas fa-search me-2" style="color:var(--accent);"></i>Поиск по видео</h1>
+    <p class="premium-page-sub">Найдите нужный момент в любом видео по произнесённым словам</p>
+
+    <% if (messages && messages.success) { %><div class="alert alert-success"><%= messages.success %></div><% } %>
+    <% if (messages && messages.error) { %><div class="alert alert-danger"><%= messages.error %></div><% } %>
+
+    <% if (!hasAccess) { %>
+        <div class="premium-lock">
+            <i class="fas fa-lock premium-lock-icon"></i>
+            <h2>Функция Premium</h2>
+            <p>Поиск по содержимому видеоуроков доступен только по подписке. Находите нужный момент по произнесённым словам.</p>
+            <a href="/auth/profile" class="btn btn-primary">Получить Premium</a>
+        </div>
+    <% } else { %>
+        <div class="vs-search-wrap">
+            <label style="font-weight:600; margin-bottom:0.75rem; display:block;">
+                <i class="fas fa-microphone me-1" style="color:var(--accent);"></i>Поиск по словам из видео
+            </label>
+            <div class="vs-search-row">
+                <input type="text" id="vsInput" class="vs-input" placeholder="Например: переменные, функции, массивы..." autocomplete="off">
+                <button class="btn btn-primary" id="vsSearchBtn" onclick="vsSearch()">
+                    <i class="fas fa-search me-1"></i>Найти
+                </button>
+            </div>
+            <p class="vs-hint"><i class="fas fa-info-circle me-1"></i>Поиск работает по транскрипциям видеоуроков</p>
+        </div>
+
+        <div class="vs-loading" id="vsLoading">
+            <i class="fas fa-spinner fa-spin fa-2x" style="color:var(--accent);"></i>
+            <p style="margin-top:0.75rem;">Ищем в видео...</p>
+        </div>
+
+        <div class="vs-results" id="vsResults"></div>
+    <% } %>
+</div>
+
+<% if (hasAccess) { %>
+<script>
+const vsInput = document.getElementById('vsInput');
+const vsResults = document.getElementById('vsResults');
+const vsLoading = document.getElementById('vsLoading');
+
+vsInput.addEventListener('keydown', e => { if (e.key === 'Enter') vsSearch(); });
+
+async function vsSearch() {
+    const query = vsInput.value.trim();
+    if (query.length < 2) {
+        vsResults.innerHTML = '<div class="vs-empty"><i class="fas fa-info-circle fa-2x" style="margin-bottom:.75rem;"></i><p>Введите минимум 2 символа для поиска</p></div>';
+        return;
+    }
+
+    vsLoading.style.display = 'block';
+    vsResults.innerHTML = '';
+
+    try {
+        const response = await fetch('/api/video-search/search', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query, limit: 20 })
+        });
+        const data = await response.json();
+
+        vsLoading.style.display = 'none';
+
+        if (!data.success) {
+            vsResults.innerHTML = `<div class="vs-empty"><i class="fas fa-exclamation-circle fa-2x" style="margin-bottom:.75rem; color:var(--danger);"></i><p>${data.message || 'Ошибка поиска'}</p></div>`;
+            return;
+        }
+
+        if (!data.results || data.results.length === 0) {
+            vsResults.innerHTML = `<div class="vs-empty"><i class="fas fa-search fa-2x" style="margin-bottom:.75rem;"></i><p>По запросу «<strong>${escHtml(query)}</strong>» ничего не найдено.<br>Попробуйте другое слово.</p></div>`;
+            return;
+        }
+
+        let html = `<p style="color:var(--text-secondary); margin-bottom:1rem;">Найдено в <strong style="color:var(--text-primary);">${data.results.length}</strong> видео</p>`;
+
+        for (const result of data.results) {
+            const matchesHtml = result.matches.slice(0, 3).map(m => `
+                <div class="vs-match">
+                    <div class="vs-match-time"><i class="far fa-clock me-1"></i>${escHtml(m.formattedTime)}</div>
+                    <div class="vs-match-text">${highlightText(escHtml(m.text), query)}</div>
+                </div>
+            `).join('');
+
+            const moreCount = result.matches.length - 3;
+
+            html += `
+                <div class="vs-result-card">
+                    <div class="vs-result-header">
+                        <div>
+                            <div class="vs-result-lesson"><i class="fas fa-play-circle me-1" style="color:var(--accent);"></i>${escHtml(result.lessonTitle)}</div>
+                            <div class="vs-result-course"><i class="fas fa-book me-1"></i>${escHtml(result.courseTitle)} &nbsp;·&nbsp; ${result.totalMatches} совпад.</div>
+                        </div>
+                        <a href="/courses/${result.courseId}" class="btn btn-sm btn-outline-primary" style="white-space:nowrap;">
+                            <i class="fas fa-external-link-alt"></i> К курсу
+                        </a>
+                    </div>
+                    ${matchesHtml}
+                    ${moreCount > 0 ? `<p style="font-size:.82rem; color:var(--text-secondary); margin-top:.5rem; margin-bottom:0;">+${moreCount} ещё...</p>` : ''}
+                </div>
+            `;
+        }
+
+        vsResults.innerHTML = html;
+    } catch (err) {
+        vsLoading.style.display = 'none';
+        vsResults.innerHTML = '<div class="vs-empty"><i class="fas fa-exclamation-triangle fa-2x" style="margin-bottom:.75rem; color:#f59e0b;"></i><p>Ошибка при поиске. Попробуйте ещё раз.</p></div>';
+    }
+}
+
+function escHtml(str) {
+    return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function highlightText(html, query) {
+    const q = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return html.replace(new RegExp(q, 'gi'), match => `<mark>${match}</mark>`);
+}
+</script>
+<% } %>
