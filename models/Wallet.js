@@ -10,11 +10,7 @@ const Wallet = sequelize.define('Wallet', {
     userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        unique: true,
-        references: {
-            model: 'Users',
-            key: 'id'
-        }
+        unique: true
     },
     balance: {
         type: DataTypes.DECIMAL(10, 2),

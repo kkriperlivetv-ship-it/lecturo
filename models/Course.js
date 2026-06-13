@@ -31,11 +31,7 @@ const Course = sequelize.define('Course', {
     },
     userId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'Users',
-            key: 'id'
-        }
+        allowNull: false
     },
     moderationStatus: {
         type: DataTypes.STRING(20),

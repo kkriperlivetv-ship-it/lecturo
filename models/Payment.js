@@ -9,19 +9,11 @@ const Payment = sequelize.define('Payment', {
     },
     userId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'Users',
-            key: 'id'
-        }
+        allowNull: false
     },
     walletId: {
         type: DataTypes.INTEGER,
-        allowNull: true,
-        references: {
-            model: 'Wallets',
-            key: 'id'
-        }
+        allowNull: true
     },
     yookassaPaymentId: {
         type: DataTypes.STRING,

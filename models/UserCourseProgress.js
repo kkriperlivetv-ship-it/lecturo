@@ -9,19 +9,11 @@ const UserCourseProgress = sequelize.define('UserCourseProgress', {
     },
     userId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'Users',
-            key: 'id'
-        }
+        allowNull: false
     },
     courseId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'Courses',
-            key: 'id'
-        }
+        allowNull: false
     },
     status: {
         type: DataTypes.ENUM('not_started', 'in_progress', 'completed'),

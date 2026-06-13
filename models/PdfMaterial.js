@@ -30,11 +30,7 @@ const PdfMaterial = sequelize.define('PdfMaterial', {
     },
     courseId: {
         type: DataTypes.INTEGER,
-        allowNull: true,
-        references: {
-            model: 'Courses',
-            key: 'id'
-        }
+        allowNull: true
     },
     module: {
         type: DataTypes.STRING,

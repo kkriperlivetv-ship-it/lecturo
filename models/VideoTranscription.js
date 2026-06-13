@@ -9,11 +9,7 @@ const VideoTranscription = sequelize.define('VideoTranscription', {
     },
     lessonId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'Lessons',
-            key: 'id'
-        }
+        allowNull: false
     },
     videoUrl: {
         type: DataTypes.STRING,

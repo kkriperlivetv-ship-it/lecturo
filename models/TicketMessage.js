@@ -9,19 +9,11 @@ const TicketMessage = sequelize.define('TicketMessage', {
     },
     ticketId: {
         type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-            model: 'Tickets',
-            key: 'id'
-        }
+        allowNull: false
     },
     authorId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'Users',
-            key: 'id'
-        }
+        allowNull: false
     },
     authorName: {
         type: DataTypes.STRING,

@@ -9,19 +9,11 @@ const Transaction = sequelize.define('Transaction', {
     },
     walletId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'Wallets',
-            key: 'id'
-        }
+        allowNull: false
     },
     userId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'Users',
-            key: 'id'
-        }
+        allowNull: false
     },
     type: {
         type: DataTypes.ENUM('deposit', 'withdrawal', 'subscription', 'refund'),

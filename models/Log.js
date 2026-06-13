@@ -9,11 +9,7 @@ const Log = sequelize.define('Log', {
     },
     userId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'Users',
-            key: 'id'
-        }
+        allowNull: false
     },
     action: {
         type: DataTypes.STRING,

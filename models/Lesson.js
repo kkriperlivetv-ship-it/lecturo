@@ -26,11 +26,7 @@ const Lesson = sequelize.define('Lesson', {
     },
     courseId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'Courses',
-            key: 'id'
-        }
+        allowNull: false
     },
     order: {
         type: DataTypes.INTEGER,

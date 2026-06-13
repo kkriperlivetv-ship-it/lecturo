@@ -9,11 +9,7 @@ const Subscription = sequelize.define('Subscription', {
     },
     userId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'Users',
-            key: 'id'
-        }
+        allowNull: false
     },
     plan: {
         type: DataTypes.ENUM('basic', 'premium'),
