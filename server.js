@@ -202,12 +202,16 @@ const sessionConfig = {
     cookie: { secure: false, maxAge: 7 * 24 * 60 * 60 * 1000 } // 7 дней
 };
 if (process.env.DATABASE_URL) {
-    sessionConfig.store = new pgSession({
+    const store = new pgSession({
         conString: process.env.DATABASE_URL,
         tableName: 'session',
         createTableIfMissing: true,
         ssl: { rejectUnauthorized: false }
     });
+    store.on('error', (err) => {
+        console.error('Session store error (non-fatal):', err.message);
+    });
+    sessionConfig.store = store;
 }
 app.use(session(sessionConfig));
 
@@ -292,7 +296,8 @@ app.use((req, res) => {
 // Глобальный error handler
 app.use((err, req, res, next) => {
     console.error('Unhandled error:', err.message);
-    if (req.xhr || req.headers.accept?.includes('application/json')) {
+    if (res.headersSent) return;
+    if (req.xhr || (req.headers.accept || '').includes('application/json')) {
         return res.status(500).json({ ok: false, error: 'Ошибка сервера' });
     }
     res.status(500).send('Ошибка сервера');
