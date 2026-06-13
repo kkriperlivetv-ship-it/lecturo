@@ -26,6 +26,10 @@ function generateVerificationCode() {
 router.post('/register', async (req, res) => {
     try {
         const { username, email, password, confirmPassword } = req.body;
+
+        if (!username || !email || !password) {
+            return res.render('auth/register', { title: 'Регистрация', error: 'Заполните все поля' });
+        }
         
         // Валидация email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

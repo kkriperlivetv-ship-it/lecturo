@@ -11,7 +11,14 @@ if (process.env.DATABASE_URL) {
             ssl: {
                 require: true,
                 rejectUnauthorized: false
-            }
+            },
+            connectTimeout: 10000 // 10 сек на TCP-соединение
+        },
+        pool: {
+            max: 5,
+            min: 0,
+            acquire: 10000, // 10 сек вместо 60 на получение соединения
+            idle: 10000
         },
         logging: false
     });

@@ -337,6 +337,10 @@ async function ensureOwnerAccount() {
 }
 
 // Синхронизация базы данных в фоне (не блокирует порт)
+sequelize.authenticate()
+    .then(() => console.log('БД: соединение установлено'))
+    .catch(err => console.error('БД: соединение НЕ установлено:', err.message));
+
 sequelize.sync({ force: false }).then(async () => {
     await ensureCoursesModerationColumns();
     await ensureWebinarsLessonIdColumn();
@@ -344,5 +348,5 @@ sequelize.sync({ force: false }).then(async () => {
     await ensureOwnerAccount();
     console.log('База данных синхронизирована');
 }).catch(err => {
-    console.error('Ошибка синхронизации БД:', err);
+    console.error('Ошибка синхронизации БД:', err.message);
 });
