@@ -4,6 +4,7 @@ const express = require('express');
 const http = require('http');
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
+const { Pool } = require('pg');
 const path = require('path');
 const expressLayouts = require('express-ejs-layouts');
 const flash = require('connect-flash');
@@ -202,11 +203,14 @@ const sessionConfig = {
     cookie: { secure: false, maxAge: 7 * 24 * 60 * 60 * 1000 } // 7 дней
 };
 if (process.env.DATABASE_URL) {
-    const store = new pgSession({
-        conString: process.env.DATABASE_URL,
-        tableName: 'session',
-        createTableIfMissing: true,
+    const pgPool = new Pool({
+        connectionString: process.env.DATABASE_URL,
         ssl: { rejectUnauthorized: false }
+    });
+    const store = new pgSession({
+        pool: pgPool,
+        tableName: 'session',
+        createTableIfMissing: true
     });
     store.on('error', (err) => {
         console.error('Session store error (non-fatal):', err.message);
