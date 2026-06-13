@@ -8,7 +8,7 @@ const expressLayouts = require('express-ejs-layouts');
 const flash = require('connect-flash');
 const { WebSocketServer } = require('ws');
 const { sequelize } = require('./config/database');
-const { QueryTypes } = require('sequelize');
+const { DataTypes } = require('sequelize');
 const authRoutes = require('./routes/auth');
 const courseRoutes = require('./routes/courses');
 const indexRoutes = require('./routes/index');
@@ -110,38 +110,67 @@ app.locals.helpRealtime = {
 };
 
 async function ensureCoursesModerationColumns() {
-    const tableInfo = await sequelize.query("PRAGMA table_info('Courses')", { type: QueryTypes.SELECT });
-    const columns = new Set(tableInfo.map(col => col.name));
-    if (!columns.has('moderationStatus')) {
-        await sequelize.query("ALTER TABLE Courses ADD COLUMN moderationStatus VARCHAR(20) NOT NULL DEFAULT 'approved'");
-    }
-    if (!columns.has('moderationComment')) {
-        await sequelize.query("ALTER TABLE Courses ADD COLUMN moderationComment TEXT");
+    try {
+        const qi = sequelize.getQueryInterface();
+        const desc = await qi.describeTable('Courses');
+        if (!desc.moderationStatus) {
+            await qi.addColumn('Courses', 'moderationStatus', {
+                type: DataTypes.STRING(20),
+                allowNull: false,
+                defaultValue: 'approved'
+            });
+        }
+        if (!desc.moderationComment) {
+            await qi.addColumn('Courses', 'moderationComment', {
+                type: DataTypes.TEXT,
+                allowNull: true
+            });
+        }
+    } catch (err) {
+        console.error('Ошибка миграции Courses:', err.message);
     }
 }
 
 async function ensureWebinarsLessonIdColumn() {
-    const tableInfo = await sequelize.query("PRAGMA table_info('Webinars')", { type: QueryTypes.SELECT });
-    const columns = new Set(tableInfo.map(col => col.name));
-    if (!columns.has('lessonId')) {
-        await sequelize.query('ALTER TABLE Webinars ADD COLUMN lessonId INTEGER');
+    try {
+        const qi = sequelize.getQueryInterface();
+        const desc = await qi.describeTable('Webinars');
+        if (!desc.lessonId) {
+            await qi.addColumn('Webinars', 'lessonId', {
+                type: DataTypes.INTEGER,
+                allowNull: true
+            });
+        }
+    } catch (err) {
+        console.error('Ошибка миграции Webinars:', err.message);
     }
 }
 
 async function ensureUserTwoFactorColumns() {
-    const tableInfo = await sequelize.query("PRAGMA table_info('Users')", { type: QueryTypes.SELECT });
-    const columns = new Set(tableInfo.map(column => column.name));
-
-    if (!columns.has('twoFactorEnabled')) {
-        await sequelize.query("ALTER TABLE Users ADD COLUMN twoFactorEnabled TINYINT(1) NOT NULL DEFAULT 0");
-    }
-
-    if (!columns.has('twoFactorSecret')) {
-        await sequelize.query("ALTER TABLE Users ADD COLUMN twoFactorSecret VARCHAR(255)");
-    }
-
-    if (!columns.has('twoFactorTempSecret')) {
-        await sequelize.query("ALTER TABLE Users ADD COLUMN twoFactorTempSecret VARCHAR(255)");
+    try {
+        const qi = sequelize.getQueryInterface();
+        const desc = await qi.describeTable('Users');
+        if (!desc.twoFactorEnabled) {
+            await qi.addColumn('Users', 'twoFactorEnabled', {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false
+            });
+        }
+        if (!desc.twoFactorSecret) {
+            await qi.addColumn('Users', 'twoFactorSecret', {
+                type: DataTypes.STRING,
+                allowNull: true
+            });
+        }
+        if (!desc.twoFactorTempSecret) {
+            await qi.addColumn('Users', 'twoFactorTempSecret', {
+                type: DataTypes.STRING,
+                allowNull: true
+            });
+        }
+    } catch (err) {
+        console.error('Ошибка миграции Users:', err.message);
     }
 }
 
