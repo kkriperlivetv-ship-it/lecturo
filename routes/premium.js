@@ -102,7 +102,7 @@ router.get('/pdfs', requireAuth, async (req, res) => {
         if (category !== 'all') where.category = category;
         if (courseId !== 'all') where.courseId = parseInt(courseId);
 
-        const [materials, total, catRows, courseRows] = await Promise.all([
+        const [materials, total, catRows, courseIdRows] = await Promise.all([
             PdfMaterial.findAll({
                 where,
                 include: [{ model: Course, attributes: ['id', 'title'] }],
@@ -117,15 +117,19 @@ router.get('/pdfs', requireAuth, async (req, res) => {
             PdfMaterial.findAll({
                 attributes: ['courseId'],
                 where: { isActive: true, courseId: { [Op.not]: null } },
-                group: ['courseId'],
-                include: [{ model: Course, attributes: ['id', 'title'] }]
+                group: ['courseId'], raw: true
             })
         ]);
+
+        const courseIds = courseIdRows.map(r => r.courseId).filter(Boolean);
+        const courses = courseIds.length
+            ? await Course.findAll({ where: { id: courseIds }, attributes: ['id', 'title'] })
+            : [];
 
         res.render('premium/pdfs', {
             title: 'Шаблоны и чек-листы', hasAccess, materials, total,
             categories: catRows.map(r => r.category).filter(Boolean),
-            courses: courseRows.map(m => m.Course).filter(Boolean),
+            courses,
             currentCategory: category, currentCourse: courseId, formatFileSize
         });
     } catch (err) {
