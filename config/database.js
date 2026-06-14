@@ -26,6 +26,13 @@ if (process.env.DATABASE_URL) {
     });
 } else {
     // Локальная разработка: SQLite
+    try {
+        require('sqlite3');
+    } catch (e) {
+        console.error('ОШИБКА: DATABASE_URL не задан, а sqlite3 недоступен.');
+        console.error('Задайте переменную DATABASE_URL для подключения к PostgreSQL.');
+        process.exit(1);
+    }
     sequelize = new Sequelize({
         dialect: 'sqlite',
         storage: path.join(__dirname, '..', 'database.sqlite'),
